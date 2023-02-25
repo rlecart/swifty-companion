@@ -1,15 +1,40 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import RenderIf from '../components/RenderIf';
-import SearchBar from '../components/SearchBar';
+import { useIsFocused } from '@react-navigation/native';
 
 import SettingsIcon from '../../assets/icons/settings.png';
 
-const StudentFinderScreen = () => {
-  const language = 'fr';
+import RenderIf from '../components/RenderIf';
+import SearchBar from '../components/SearchBar';
+import ModalSetLanguage from '../containers/ModalSetLanguage';
+
+import db from '../db/db';
+
+const StudentFinderScreen = ({ isLoaded }) => {
+  const isFocused = useIsFocused();
+
+  const [language, setLanguage] = useState('fr');
 
   const [searchText, setSearchText] = useState('');
   const [showCancel, setShowCancel] = useState(false);
+
+  const [modalLanguageVisible, setModalLanguageVisible] = useState(false);
+
+  useEffect(() => {
+    if (isLoaded) {
+      getLanguageFromDB();
+    }
+  }, [isLoaded, isFocused]);
+
+  const getLanguageFromDB = async () => {
+    try {
+      const language = await db.getLanguage();
+      console.log('language: ', language);
+      setLanguage(language);
+    } catch (error) {
+      console.log('error fetching language: ', error);
+    }
+  };
 
   const handleChangeText = (text) => {
     setShowCancel(text === '' ? false : true);
@@ -30,8 +55,26 @@ const StudentFinderScreen = () => {
     console.log('go to friends list');
   };
 
+  const handleCloseLanguageModal = () => {
+    if (modalLanguageVisible) {
+      getLanguageFromDB();
+      setModalLanguageVisible(false);
+    }
+  };
+
+  const handleOpenLanguageModal = () => {
+    if (!modalLanguageVisible) {
+      setModalLanguageVisible(true);
+    }
+  };
+
   return (
     <Fragment>
+      <ModalSetLanguage
+        modalVisible={modalLanguageVisible}
+        handleCloseModal={handleCloseLanguageModal}
+      />
+
       <View style={style.container}>
         <View style={style.square} />
 
@@ -44,22 +87,24 @@ const StudentFinderScreen = () => {
             Student Finder
           </Text>
 
-          <View style={style.searchBar}>
-            <Image source={require('../../assets/icons/search.png')} style={style.searchIcon} />
-            <TextInput
-              style={style.searchText}
-              placeholder={language === 'fr' ? 'Login' : 'Login'}
-              onChangeText={handleChangeText}
-              value={searchText}
-              platform="ios"
-              autoCapitalize='words'
-            />
-            <RenderIf isTrue={showCancel}>
-              <Button
-                onPress={handleCancel}
-                title={language === 'fr' ? 'Annuler' : "Cancel"}
+          <View style={style.searchBarContainer}>
+            <View style={style.searchBar}>
+              <Image source={require('../../assets/icons/search.png')} style={style.searchIcon} />
+              <TextInput
+                style={style.searchText}
+                placeholder={language === 'fr' ? 'Login' : 'Login'}
+                onChangeText={handleChangeText}
+                value={searchText}
+                platform="ios"
+                autoCapitalize='words'
               />
-            </RenderIf>
+              <RenderIf isTrue={showCancel}>
+                <Button
+                  onPress={handleCancel}
+                  title={language === 'fr' ? 'Annuler' : "Cancel"}
+                />
+              </RenderIf>
+            </View>
           </View>
 
           <TouchableOpacity style={style.searchButton} onPress={() => handleSubmit(searchText)}>
@@ -77,7 +122,7 @@ const StudentFinderScreen = () => {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={style.settingsContainer} onPress={() => console.log('go to settings')}>
+            <TouchableOpacity style={style.settingsContainer} onPress={handleOpenLanguageModal}>
               <Image style={style.settingsIcon} source={SettingsIcon} />
             </TouchableOpacity>
           </View>
@@ -136,17 +181,25 @@ const style = StyleSheet.create({
     marginBottom: 10,
   },
 
+  searchBarContainer: {
+    backgroundColor: '#FFFFFF33',
+    marginBottom: 25,
+    borderRadius: 10,
+    filter: 'blur(4px)',
+    borderWidth: 1,
+    borderColor: '#9BD1CE',
+  },
   searchBar: {
+    backgroundColor: '#BEFFFB80',
+    blendMode: 'overlay',
     width: '100%',
     height: 40,
-    backgroundColor: '#76768030',
     borderRadius: 10,
     paddingHorizontal: 15,
     marginHoriz: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 25,
   },
   searchIcon: {
     width: 20,
@@ -168,6 +221,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+
   },
   searchButtonText: {
     color: '#F2F2F7',

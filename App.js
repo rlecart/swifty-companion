@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { AsyncStorage, AppState, Image, Alert, StyleSheet } from 'react-native';
+import { AppState, Image, Alert, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
