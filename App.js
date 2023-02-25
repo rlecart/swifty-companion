@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { AppState, Image, Alert, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import StudentFinderScreen from './src/Views/StudentFinderScreen';
 import FriendsListScreen from './src/Views/FriendsListScreen';
-// import StudentProfileScreen from './src/Views/StudentProfileScreen';
+import StudentProfileScreen from './src/Views/StudentProfileScreen';
 
 import db from './src/db/db';
 import { initLanguage } from './src/db/initDB';
@@ -55,9 +56,9 @@ const App = () => {
           {props => <FriendsListScreen {...props} isLoaded={isLoaded} />}
         </Stack.Screen>
 
-        {/* <Stack.Screen name="StudentProfileScreen" options={{ headerShown: false }}>
+        <Stack.Screen name="StudentProfileScreen" options={{ headerShown: false }}>
           {props => <StudentProfileScreen {...props} isLoaded={isLoaded} />}
-        </Stack.Screen> */}
+        </Stack.Screen>
 
       </Stack.Navigator>
     </NavigationContainer>

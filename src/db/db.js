@@ -325,30 +325,44 @@ const deletePhoneFromContact = async (whoAskId, contactId, phoneToDelete, forceD
   }
 };
 
+const getAccessToken = async () => {
+  try {
+    const accessToken = await AsyncStorage.getItem('@swifty-companion:accessToken');
+    // console.log('accessToken', accessToken)
+    return (JSON.parse(accessToken));
+  } catch (error) {
+    console.log('Error getAccessToken', error);
+    throw (error);
+  }
+};
+
+const setAccessToken = async (accessToken) => {
+  try {
+    const newAccessToken = {
+      access_token: accessToken.access_token,
+      token_type: accessToken.token_type,
+      expires_in: accessToken.expires_in,
+      scope: accessToken.scope,
+      created_at: accessToken.created_at,
+    }
+    await AsyncStorage.setItem('@swifty-companion:accessToken', JSON.stringify(newAccessToken));
+    // console.log('accessToken', JSON.stringify(newAccessToken))
+  } catch (error) {
+    console.log('Error setAccessToken', error);
+    throw (error);
+  }
+};
+
 export default {
   setContactsList,
   getContactsList,
-  getContactById,
-  getContactByPhoneNumber,
   saveContact,
   deleteContact,
   getLanguage,
   setLanguage,
-  getHeaderColor,
-  setHeaderColor,
-  setSelfContact,
-  getSelfContact,
-  saveSelfContact,
   setFirstLaunch,
   isTheFirstLaunch,
 
-  setConversationsList,
-  getConversationsList,
-  deleteConversation,
-  getConversationById,
-  getConversationByPhoneNumber,
-  saveConversation,
-  sendMessage,
-  areThesePhoneAlreadyUsed,
-  deletePhoneFromContact,
+  getAccessToken,
+  setAccessToken,
 };

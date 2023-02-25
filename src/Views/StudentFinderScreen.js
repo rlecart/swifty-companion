@@ -8,7 +8,10 @@ import RenderIf from '../components/RenderIf';
 import SearchBar from '../components/SearchBar';
 import ModalSetLanguage from '../containers/ModalSetLanguage';
 
+import { isAValidLogin } from '../utils/utils';
+
 import db from '../db/db';
+import api from '../api/api';
 
 const StudentFinderScreen = ({ navigation, isLoaded }) => {
   const isFocused = useIsFocused();
@@ -17,6 +20,7 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
 
   const [searchText, setSearchText] = useState('');
   const [showCancel, setShowCancel] = useState(false);
+  const [searchError, setSearchError] = useState(false);
 
   const [modalLanguageVisible, setModalLanguageVisible] = useState(false);
 
@@ -37,18 +41,42 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
   };
 
   const handleChangeText = (text) => {
+    setSearchError(false);
     setShowCancel(text === '' ? false : true);
     setSearchText(text);
   };
 
   const handleCancel = () => {
+    setSearchError(false);
     setSearchText('');
     setShowCancel(false);
   };
 
-  const handleSubmit = (login) => {
-    console.log('login: ', login);
-    handleCancel();
+  const handleSubmit = async (login) => {
+    try {
+      console.log('login: ', login, isAValidLogin(login));
+      if (login === '' || login === undefined || login === null)
+        return;
+
+      if (!isAValidLogin(login)) {
+        setSearchError(true);
+        return;
+      }
+
+      const student = await api.getStudentByLogin(login);
+      // console.log('student: ', student);
+
+      navigation.navigate('StudentProfileScreen', {
+        student,
+        // projects,
+        // evaluations,
+        // skills,
+      });
+    } catch (error) {
+      console.log('error handleSubmit: ', error);
+      setSearchError(true);
+    }
+    // handleCancel();
   };
 
   const goToFriendsList = () => {
@@ -88,7 +116,7 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
             Student Finder
           </Text>
 
-          <View style={style.searchBarContainer}>
+          <View style={[style.searchBarContainer, searchError && style.searchBarError]}>
             <View style={style.searchBar}>
               <Image source={require('../../assets/icons/search.png')} style={style.searchIcon} />
               <TextInput
@@ -97,7 +125,9 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
                 onChangeText={handleChangeText}
                 value={searchText}
                 platform="ios"
-                autoCapitalize='words'
+                autoCapitalize='none'
+                autoComplete='off'
+                autoCorrect={false}
               />
               <RenderIf isTrue={showCancel}>
                 <Button
@@ -200,6 +230,9 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  searchBarError: {
+    borderColor: '#FF0000',
   },
   searchIcon: {
     width: 20,
