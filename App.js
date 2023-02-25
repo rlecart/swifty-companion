@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import StudentFinderScreen from './src/Views/StudentFinderScreen';
-// import FriendsListScreen from './src/Views/FriendsListScreen';
+import FriendsListScreen from './src/Views/FriendsListScreen';
 // import StudentProfileScreen from './src/Views/StudentProfileScreen';
 
 import db from './src/db/db';
@@ -38,10 +38,9 @@ const App = () => {
   const orientation = useOrientation();
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [language, setLanguage] = useState('fr');
 
   useEffect(() => {
-    initializeDBIfNeeded();
+    initializeDBIfNeeded().then(() => setIsLoaded(true));
   }, []);
 
   return (
@@ -49,15 +48,15 @@ const App = () => {
       <Stack.Navigator initialRouteName='StudentFinder'>
 
         <Stack.Screen name="StudentFinder" options={{ headerShown: false }}>
-          {props => <StudentFinderScreen {...props} isLoaded={isLoaded} setLanguage={setLanguage} />}
+          {props => <StudentFinderScreen {...props} isLoaded={isLoaded} />}
         </Stack.Screen>
 
-        {/* <Stack.Screen name="FriendsListScreen" options={{ headerShown: false }}>
-          {props => <FriendsListScreen {...props} isLoaded={isLoaded} language={language} />}
-        </Stack.Screen> */}
+        <Stack.Screen name="FriendsListScreen" options={{ headerShown: false, gestureDirection: 'horizontal-inverted' }}>
+          {props => <FriendsListScreen {...props} isLoaded={isLoaded} />}
+        </Stack.Screen>
 
         {/* <Stack.Screen name="StudentProfileScreen" options={{ headerShown: false }}>
-          {props => <StudentProfileScreen {...props} isLoaded={isLoaded} language={language} />}
+          {props => <StudentProfileScreen {...props} isLoaded={isLoaded} />}
         </Stack.Screen> */}
 
       </Stack.Navigator>

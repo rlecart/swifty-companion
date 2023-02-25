@@ -2,69 +2,32 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 
-import ContactCardsContainer from "../containers/ContactCardsContainer";
-
-import ModalContactSheet from "../containers/ModalContactSheet";
-import ModalSetLanguage from "../containers/ModalSetLanguage";
-import ModalSetHeaderColor from "../containers/ModalSetHeaderColor";
-
-import Header from "../containers/Header";
 import TitleWithCTA from "../components/TitleWithCTA";
-import EmptyNavMargin from "../components/EmptyNavMargin";
-
-import { filterContacts } from "../components/filters/filterContacts";
 
 import db from "../db/db";
+import { filterFriends } from "../components/filters/filterFriends";
+import FriendCardsContainer from "../containers/FriendCardsContainer";
 
-const FriendsListScreen = ({ route, navigation, isLoaded, setLanguage }) => {
+const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   const isFocused = useIsFocused();
 
-  const [selfContact, setSelfContact] = useState(null);
+  const [language, setLanguage] = useState('fr');
 
-  const [headerColor, setHeaderColor] = useState('teal');
-
-  const [contactsList, setContactsList] = useState(null);
-  const [contactsListFiltered, setContactsListFiltered] = useState(null);
-
-  const [modalContactVisible, setModalContactVisible] = useState(false);
-  const [modalContact, setModalContact] = useState({});
-  const [modalContactType, setModalContactType] = useState('read');
-
-  const [modalLanguageVisible, setModalLanguageVisible] = useState(false);
-
-  const [modalColorVisible, setModalColorVisible] = useState(false);
+  const [friendsList, setFriendsList] = useState(null);
+  const [friendsListFiltered, setFriendsListFiltered] = useState(null);
 
   useEffect(() => {
     if (isLoaded) {
-      getContactsListFromDB();
+      getFriendsListFromDB();
       getLanguageFromDB();
-      getHeaderColorFromDB();
-      getSelfContactFromDB();
     }
   }, [isLoaded, isFocused]);
 
   useEffect(() => {
-    if (contactsList !== undefined && contactsList !== null)
-      setContactsListFiltered(contactsList);
-  }, [contactsList]);
-
-  const getSelfContactFromDB = async () => {
-    try {
-      const self = await db.getSelfContact();
-      setSelfContact(self);
-    } catch (error) {
-      console.log('error fetching selfContact: ', error);
-    }
-  };
-
-  const getHeaderColorFromDB = async () => {
-    try {
-      const headerColor = await db.getHeaderColor();
-      setHeaderColor(headerColor);
-    } catch (error) {
-      console.log('error fetching headerColor: ', error);
-    }
-  };
+    console.log('friendsList: ', friendsList);
+    if (friendsList !== undefined && friendsList !== null)
+      setFriendsListFiltered(friendsList);
+  }, [friendsList]);
 
   const getLanguageFromDB = async () => {
     try {
@@ -75,108 +38,86 @@ const FriendsListScreen = ({ route, navigation, isLoaded, setLanguage }) => {
     }
   };
 
-  const getContactsListFromDB = async () => {
+  const getFriendsListFromDB = async () => {
     try {
-      const contacts = await db.getContactsList();
-      setContactsList(contacts);
+      // const friends = await db.getFriendsList();
+      const friends = [
+        {
+          type: 'friend',
+          login: 'rlecart',
+          image: 'https://cdn.intra.42.fr/users/c5f1f122c36f732a9a22af2531029ff6/rlecart.jpg',
+        },
+        {
+          type: 'friend',
+          login: 'valecart',
+          image: 'https://cdn.intra.42.fr/users/9a6a60b928108deff03ed6f152bcd6ca/valecart.jpg',
+        },
+        {
+          type: 'friend',
+          login: 'cboudrin',
+          image: 'https://cdn.intra.42.fr/users/b0cf67c26a1bbcc3824f50701f9ecb23/cboudrin.jpg',
+        },
+        // {
+        //   type: 'friend',
+        //   login: 'rlecart',
+        //   image: 'https://cdn.intra.42.fr/users/c5f1f122c36f732a9a22af2531029ff6/rlecart.jpg',
+        // },
+        // {
+        //   type: 'friend',
+        //   login: 'valecart',
+        //   image: 'https://cdn.intra.42.fr/users/9a6a60b928108deff03ed6f152bcd6ca/valecart.jpg',
+        // },
+        // {
+        //   type: 'friend',
+        //   login: 'cboudrin',
+        //   image: 'https://cdn.intra.42.fr/users/b0cf67c26a1bbcc3824f50701f9ecb23/cboudrin.jpg',
+        // },
+        // {
+        //   type: 'friend',
+        //   login: 'rlecart',
+        //   image: 'https://cdn.intra.42.fr/users/c5f1f122c36f732a9a22af2531029ff6/rlecart.jpg',
+        // },
+        // {
+        //   type: 'friend',
+        //   login: 'valecart',
+        //   image: 'https://cdn.intra.42.fr/users/9a6a60b928108deff03ed6f152bcd6ca/valecart.jpg',
+        // },
+        // {
+        //   type: 'friend',
+        //   login: 'cboudrin',
+        //   image: 'https://cdn.intra.42.fr/users/b0cf67c26a1bbcc3824f50701f9ecb23/cboudrin.jpg',
+        // },
+      ];
+      setFriendsList(friends);
     } catch (error) {
-      console.log('error fetching contactsList: ', error);
+      console.log('error fetching friendsList: ', error);
     }
   };
 
-  const handleOpenUserModal = (contact) => {
-    if (!modalContactVisible) {
-      if (contact.type === 'contact')
-        setModalContactType('read');
-      else if (contact.type === 'add')
-        setModalContactType('edit');
-      setModalContact(contact);
-      setModalContactVisible(!modalContactVisible);
-    }
-  };
-
-  const handleCloseUserModal = (userType) => {
-    if (modalContactVisible) {
-      if (userType === 'contact') {
-        getContactsListFromDB();
-        setModalContactVisible(!modalContactVisible);
-        setModalContact({});
-      }
-      else if (userType === 'self') {
-        getSelfContactFromDB();
-        setModalContactVisible(!modalContactVisible);
-        setModalContact({});
-      }
-      else if (userType === 'add') {
-        setModalContactVisible(!modalContactVisible);
-        setModalContact({});
-      }
-    }
-  };
-
-  const handleCloseLanguageModal = () => {
-    if (modalLanguageVisible) {
-      getLanguageFromDB();
-      setModalLanguageVisible(false);
-    }
-  };
-
-  const handleCloseColorModal = () => {
-    if (modalColorVisible) {
-      getHeaderColorFromDB();
-      setModalColorVisible(false);
-    }
+  const handleOpenFriendProfile = (friend) => {
+    console.log('friend: ', friend);
+    // navigation.navigate('FriendProfileScreen', { friend });
   };
 
   return (
     <View style={style.container}>
-      <ModalContactSheet
-        route={route}
-        navigation={navigation}
-        type={modalContactType}
-        setType={setModalContactType}
-        contact={modalContact}
-        handleCloseUserModal={handleCloseUserModal}
-        modalContactVisible={modalContactVisible}
-        disabledActions={{
-          message: modalContact?.type !== 'contact' || modalContact.phones.length <= 0 ? true : false,
-          call: modalContact?.type !== 'contact' || modalContact.phones.length <= 0 ? true : false,
-          FaceTime: modalContact?.type !== 'contact' || modalContact.phones.length <= 0 ? true : false,
-          email: modalContact?.type !== 'contact' || modalContact.emails.length <= 0 ? true : false,
-        }}
-      />
-      <ModalSetLanguage
-        modalVisible={modalLanguageVisible}
-        handleCloseModal={handleCloseLanguageModal}
-      />
-      <ModalSetHeaderColor
-        modalVisible={modalColorVisible}
-        handleCloseModal={handleCloseColorModal}
-      />
+      <View style={style.square} />
+
       <ScrollView style={style.scrollView}>
-        <Header
-          headerColor={headerColor}
-          user={selfContact}
-          handleOpenUserModal={handleOpenUserModal}
-          handleOpenColorModal={() => setModalColorVisible(true)}
-        />
         <TitleWithCTA
-          title="Contacts"
-          cta={() => setModalLanguageVisible(true)}
-          ctaIcon={require('../../assets/icons/ellipsis.circle.png')}
+          title={language === 'fr' ? 'Liste d\'amis' : "Friends list"}
           withSearchBar
-          allData={contactsList}
-          setDataFiltered={setContactsListFiltered}
-          filterFunction={filterContacts}
+          allData={friendsList}
+          setDataFiltered={setFriendsListFiltered}
+          filterFunction={filterFriends}
         />
-        <View style={style.contactsList}>
-          <ContactCardsContainer
-            headerColor={headerColor}
-            contactsListFiltered={contactsListFiltered}
-            handleOpenUserModal={handleOpenUserModal}
+        <View style={style.friendsList}>
+          <FriendCardsContainer
+            friendsListFiltered={friendsListFiltered}
+            handleOpenFriendProfile={handleOpenFriendProfile}
           />
         </View>
-        <EmptyNavMargin />
+        <View style={{ height: 50 }} />
       </ScrollView>
     </View >
   );
@@ -185,14 +126,32 @@ const FriendsListScreen = ({ route, navigation, isLoaded, setLanguage }) => {
 const style = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
+    backgroundColor: '#F2F2F7',
     alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 100,
   },
+
+  square: {
+    // zIndex: 5,
+    position: 'absolute',
+    bottom: -380,
+    right: 0,
+    width: 200,
+    height: 200,
+    backgroundColor: '#FFA5BB',
+    transform: [
+      { rotate: '-35deg' },
+      { scaleX: 7 },
+      { scaleY: 3.4 },
+    ],
+  },
+
   scrollView: {
     width: '100%',
   },
 
-  contactsList: {
+  friendsList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     width: '100%',

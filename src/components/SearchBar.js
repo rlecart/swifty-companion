@@ -8,6 +8,8 @@ const SearchBar = ({ allData, setDataFiltered, filterFunction }) => {
   const [searchText, setSearchText] = useState('');
   const [showCancel, setShowCancel] = useState(false);
   const [language, setLanguage] = useState('fr');
+  db.getLanguage().then(lang => setLanguage(lang));
+  console.log('language: ', language)
 
   const handleCancel = () => {
     setSearchText('');
@@ -30,7 +32,6 @@ const SearchBar = ({ allData, setDataFiltered, filterFunction }) => {
     }
   }, [searchText]);
 
-  db.getLanguage().then(lang => setLanguage(lang));
 
   return (
     <View style={style.searchBar}>

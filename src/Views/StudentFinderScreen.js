@@ -10,7 +10,7 @@ import ModalSetLanguage from '../containers/ModalSetLanguage';
 
 import db from '../db/db';
 
-const StudentFinderScreen = ({ isLoaded }) => {
+const StudentFinderScreen = ({ navigation, isLoaded }) => {
   const isFocused = useIsFocused();
 
   const [language, setLanguage] = useState('fr');
@@ -52,7 +52,8 @@ const StudentFinderScreen = ({ isLoaded }) => {
   };
 
   const goToFriendsList = () => {
-    console.log('go to friends list');
+    // console.log('go to friends list');
+    navigation.navigate('FriendsListScreen');
   };
 
   const handleCloseLanguageModal = () => {
@@ -153,7 +154,6 @@ const style = StyleSheet.create({
       { scaleX: 7 },
       { scaleY: 3.4 },
     ],
-
   },
 
   logoContainer: {
@@ -221,7 +221,6 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-
   },
   searchButtonText: {
     color: '#F2F2F7',
