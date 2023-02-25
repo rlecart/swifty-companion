@@ -109,7 +109,7 @@ const StudentFinderScreen = ({ isLoaded }) => {
 
           <TouchableOpacity style={style.searchButton} onPress={() => handleSubmit(searchText)}>
             <Text style={style.searchButtonText}>
-              ÇA PART
+              {language === 'fr' ? 'ÇA PART !' : 'LET\'S GO !'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -118,7 +118,7 @@ const StudentFinderScreen = ({ isLoaded }) => {
           <View style={style.bottomActions}>
             <TouchableOpacity style={style.friendsList} onPress={goToFriendsList}>
               <Text style={style.friendsListText}>
-                FRIENDS LIST
+                {language === 'fr' ? 'LISTE D\'AMIS' : 'FRIENDS LIST'}
               </Text>
             </TouchableOpacity>
 
