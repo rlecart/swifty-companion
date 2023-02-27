@@ -1,8 +1,9 @@
 import { useIsFocused } from '@react-navigation/native';
 import React, { Fragment, useEffect, useState } from 'react';
+import db from '../db/db';
 
 const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
-  const { student } = route.params;
+  const { student, projects } = route.params;
 
   const isFocused = useIsFocused();
 
@@ -84,6 +85,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
   };
 
   console.log('student: ', student);
+  console.log('projects: ', projects);
 
   return (
     <Fragment>

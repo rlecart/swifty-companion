@@ -61,6 +61,7 @@ const getAccessToken = async () => {
 const getStudentByLogin = async (login) => {
   try {
     const accessToken = await getAccessToken();
+    console.log('token: ', accessToken);
 
     const options = {
       method: 'GET',
@@ -96,6 +97,45 @@ const getStudentByLogin = async (login) => {
   }
 };
 
+const getStudentProjects = async (studentId) => {
+  try {
+    const accessToken = await getAccessToken();
+    console.log('token: ', accessToken);
+
+    const options = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken,
+      }
+    };
+    const params = {
+      client_id: credentials.client_id,
+      client_secret: credentials.client_secret,
+    };
+    const response = await fetch(`${apiEndpoint}/projects_users?` + new URLSearchParams(params) + `&filter[user_id]=${studentId}`, options);
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const reader = new FileReader();
+    reader.readAsText(blob);
+    return new Promise((resolve, reject) => {
+      reader.onload = () => {
+        const data = JSON.parse(reader.result);
+        if (data === undefined || data === null)
+          reject(new Error(`No projects array found with user_id ${studentId}`));
+        resolve(data);
+      };
+    });
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+    throw error;
+  }
+};
+
 export default {
   getStudentByLogin,
+  getStudentProjects,
 };

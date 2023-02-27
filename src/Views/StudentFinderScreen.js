@@ -65,10 +65,11 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
 
       const student = await api.getStudentByLogin(login);
       // console.log('student: ', student);
+      const projects = await api.getStudentProjects(student?.[0]?.id);
 
       navigation.navigate('StudentProfileScreen', {
         student,
-        // projects,
+        projects,
         // evaluations,
         // skills,
       });
