@@ -18,7 +18,7 @@ const askNewAccessToken = async () => {
   try {
     const response = await fetch(`${apiEndpoint}/oauth/token/?` + new URLSearchParams(params), options);
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}}`);
     }
 
     const blob = await response.blob();
@@ -27,6 +27,8 @@ const askNewAccessToken = async () => {
     return new Promise(resolve => {
       reader.onload = () => {
         const data = JSON.parse(reader.result);
+        if (data === undefined || data === null)
+          reject(new Error(`Can't reach the access token`));
         resolve(data);
       };
     });
@@ -51,6 +53,7 @@ const getAccessToken = async () => {
       actualAccessToken = newAccessToken;
     }
 
+    console.log('actualAccessToken: ', actualAccessToken?.access_token);
     return (actualAccessToken?.access_token);
   } catch (error) {
     console.log('error fetching access token: ', error);
@@ -77,7 +80,7 @@ const getStudentByLogin = async (login) => {
 
     const response = await fetch(`${apiEndpoint}/users?` + new URLSearchParams(params) + `&filter[login]=${login}`, options);
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}}`);
     }
 
     const blob = await response.blob();
@@ -86,9 +89,9 @@ const getStudentByLogin = async (login) => {
     return new Promise((resolve, reject) => {
       reader.onload = () => {
         const data = JSON.parse(reader.result);
-        if (data.length !== 1)
+        if (data === undefined || data === null || data.length !== 1)
           reject(new Error(`No user found with login ${login}`));
-        resolve(data);
+        resolve(data?.[0]);
       };
     });
   } catch (error) {
@@ -113,9 +116,10 @@ const getStudentProjects = async (studentId) => {
       client_id: credentials.client_id,
       client_secret: credentials.client_secret,
     };
+
     const response = await fetch(`${apiEndpoint}/projects_users?` + new URLSearchParams(params) + `&filter[user_id]=${studentId}`, options);
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}}`);
     }
 
     const blob = await response.blob();
@@ -135,7 +139,50 @@ const getStudentProjects = async (studentId) => {
   }
 };
 
+const getStudentSkills = async (studentId) => {
+  try {
+    const accessToken = await getAccessToken();
+    console.log('token: ', accessToken);
+
+    const options = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken,
+      }
+    };
+    const params = {
+      client_id: credentials.client_id,
+      client_secret: credentials.client_secret,
+    };
+
+    const response = await fetch(`${apiEndpoint}/cursus_users?` + new URLSearchParams(params) + `&filter[user_id]=${studentId}`, options);
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}}`);
+    }
+
+    const blob = await response.blob();
+    const reader = new FileReader();
+    reader.readAsText(blob);
+    return new Promise((resolve, reject) => {
+      reader.onload = () => {
+        const data = JSON.parse(reader.result);
+        if (data === undefined || data === null || data.length <= 0)
+          reject(new Error(`No skills array found with user_id ${studentId}`));
+        resolve({
+          skills: data?.[0]?.skills,
+          level: data?.[0]?.level,
+        });
+      };
+    });
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+    throw error;
+  }
+};
+
 export default {
   getStudentByLogin,
   getStudentProjects,
+  getStudentSkills,
 };
