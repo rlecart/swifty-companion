@@ -200,72 +200,78 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
             </Text>
 
             <View style={style.categoryContent}>
-              {projects.map((project, index) => (
+              {projects.map((project, index) => {
+                console.log('project: ', project);
+                return (
+                  <View key={index} style={style.categoryContentRow}>
+                    <Text style={[
+                      style.categoryContentRowText, {
+                        maxWidth: '75%',
+                        color: '#B6B6C1',
+                      },
+                      project.status === 'finished' && (project['validated?']
+                        ? style.categoryContentRowTextValidated : style.categoryContentRowTextFailed),
+                      project.status === 'in_progress' && style.categoryContentRowTextInProgress,
+                    ]}
+                      numberOfLines={1}
+                    >
+                      {project.project.name}
+                    </Text>
+
+                    <View style={[
+                      style.projectEvaluation,
+                      project.status === 'finished' && (project['validated?']
+                        ? style.projectEvaluationValidated : style.projectEvaluationFailed),
+                      project.status === 'in_progress' && style.projectEvaluationInProgress,
+                    ]}>
+                      <RenderIf isTrue={project.status !== 'in_progress'}>
+                        <Text style={[
+                          style.projectEvaluationText,
+                          project.status === 'finished' && (project['validated?']
+                            ? style.projectEvaluationTextValidated : style.projectEvaluationTextFailed),
+                        ]}>
+                          {project.final_mark || (project.status === 'finished' ? '0' : '-')}
+                        </Text>
+                      </RenderIf>
+
+                      <RenderIf isTrue={project.status === 'in_progress'}>
+                        <Image source={PendingClock} style={style.pendingClock} />
+                      </RenderIf>
+                    </View>
+                  </View>
+                );
+              })
+              }
+            </View>
+          </View>
+
+          <View style={style.categoryContainer}>
+            <Text style={style.categoryTitle}>
+              {language === 'fr' ? 'Compétences' : 'Skills'}
+            </Text>
+
+            <View style={style.categoryContent}>
+              {skills.skills.map((skill, index) => (
                 <View key={index} style={style.categoryContentRow}>
-                  <Text style={[
-                    style.categoryContentRowText,
-                    { maxWidth: '75%' },
-                    project.status === 'finished' && project['validated?']
-                      ? style.categoryContentRowTextValidated : style.categoryContentRowTextFailed,
-                    project.status === 'in_progress' && style.categoryContentRowTextInProgress,
-                  ]}
-                    numberOfLines={1}
-                  >
-                    {project.project.name}
-                  </Text>
-
-                  <View style={[
-                    style.projectEvaluation,
-                    project.status === 'finished' && project['validated?']
-                      ? style.projectEvaluationValidated : style.projectEvaluationFailed,
-                    project.status === 'in_progress' && style.projectEvaluationInProgress,
-                  ]}>
-                    <RenderIf isTrue={project.status !== 'in_progress'}>
-                      <Text style={[
-                        style.projectEvaluationText,
-                        project.status === 'finished' && project['validated?']
-                          ? style.projectEvaluationTextValidated : style.projectEvaluationTextFailed,
-                      ]}>
-                        {project.final_mark || '0'}
+                  <View style={style.skillContainer}>
+                    <View style={style.skillHeaderContainer}>
+                      <Text
+                        style={[style.skillName, { maxWidth: '80%' }]}
+                        numberOfLines={1}
+                      >
+                        {skill.name}
                       </Text>
-                    </RenderIf>
+                      <Text style={style.skillPercentage}>
+                        {(skill.level / 20 * 100).toFixed(2)}%
+                      </Text>
+                    </View>
 
-                    <RenderIf isTrue={project.status === 'in_progress'}>
-                      <Image source={PendingClock} style={style.pendingClock} />
-                    </RenderIf>
+                    <View style={style.skillProgressBarContainer}>
+                      <View style={[style.skillProgressBar, { width: `${skill.level / 20 * 100}%` }]} />
+                    </View>
                   </View>
                 </View>
               ))}
-            </View>
-
-            <View style={style.categoryContainer}>
-              <Text style={style.categoryTitle}>
-                {language === 'fr' ? 'Compétences' : 'Skills'}
-              </Text>
-
-              <View style={style.categoryContent}>
-                {skills.skills.map((skill, index) => (
-                  <View key={index} style={style.categoryContentRow}>
-                    <View style={style.skillContainer}>
-                      <View style={style.skillHeaderContainer}>
-                        <Text
-                          style={[style.skillName, { maxWidth: '80%' }]}
-                          numberOfLines={1}
-                        >
-                          {skill.name}
-                        </Text>
-                        <Text style={style.skillPercentage}>
-                          {(skill.level / 20 * 100).toFixed(2)}%
-                        </Text>
-                      </View>
-
-                      <View style={style.skillProgressBarContainer}>
-                        <View style={[style.skillProgressBar, { width: `${skill.level / 20 * 100}%` }]} />
-                      </View>
-                    </View>
-                  </View>
-                ))}
-              </View>
             </View>
           </View>
 
@@ -490,7 +496,7 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    // backgroundColor: '#1E1E1E',
+    // backgroundColor: 'red',
     marginTop: 15,
     marginBottom: 10,
     // padding: 20,
@@ -542,7 +548,7 @@ const style = StyleSheet.create({
     height: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#85858B',
+    backgroundColor: '#D3D3DD',
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: '10',
@@ -557,7 +563,6 @@ const style = StyleSheet.create({
     backgroundColor: '#FFEDAD',
   },
   projectEvaluationText: {
-    fontFamily: 'SF Symbols',
     color: 'white',
     fontSize: 18,
     fontWeight: 300,
