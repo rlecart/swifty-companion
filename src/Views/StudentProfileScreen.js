@@ -291,7 +291,7 @@ const style = StyleSheet.create({
 
   square: {
     position: 'absolute',
-    top: -150,
+    top: -150, // -120
     left: 0,
     width: 200,
     height: 200,
