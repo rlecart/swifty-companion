@@ -92,16 +92,17 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
     setIsFriend(nextIsFriend);
   };
 
-  console.log('student: ', student);
-  console.log('projects: ', projects);
-  console.log('skills: ', skills);
+  // console.log('student: ', student);
+  // console.log('projects: ', projects);
+  // console.log('skills: ', skills);
 
   return (
     <Fragment>
       <ScrollView style={style.container}>
-        <View style={style.square} />
 
         <View style={style.headerContainer}>
+          <View style={style.square} />
+
           <View style={style.studentInfos}>
             <View style={style.studentImageContainer}>
               <Image
@@ -201,7 +202,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
             <View style={style.categoryContent}>
               {projects.map((project, index) => {
-                console.log('project: ', project);
+                // console.log('project:', project);
                 return (
                   <View key={index} style={style.categoryContentRow}>
                     <Text style={[
@@ -287,11 +288,13 @@ const style = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F2F2F7',
     paddingHorizontal: 30,
+    // background: 'red'
   },
 
   square: {
     position: 'absolute',
-    top: -150, // -120
+    // top: -150, // -120
+    bottom: 295,
     left: 0,
     width: 200,
     height: 200,
