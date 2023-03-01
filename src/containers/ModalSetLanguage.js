@@ -1,11 +1,16 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+
+import AppleLogoWhite from "../../assets/icons/AppleLogoWhite.png";
+import AppleLogoBlack from "../../assets/icons/AppleLogoBlack.png";
 
 import db from "../db/db";
 
 import CustomAnimatedModal from "../components/CustomAnimatedModal";
 
 const ModalSetLanguage = ({ modalVisible, handleCloseModal, children }) => {
+  const theme = useColorScheme();
+
   const handleChangeLanguage = (lang) => {
     db.setLanguage(lang).then(() => {
       handleCloseModal();
@@ -14,18 +19,20 @@ const ModalSetLanguage = ({ modalVisible, handleCloseModal, children }) => {
 
   return (
     <CustomAnimatedModal
+      theme={theme}
       modalVisible={modalVisible}
       handleCloseModal={handleCloseModal}
       height={200}
       children={children}
-      color='#FAFAFAEE'
+      color={theme === 'dark' ? '#1C1C1EEE' : '#FAFAFAEE'}
       header={{
         title: 'Language',
-        leftIcon: require('../../assets/icons/AppleLogo.png'),
+        leftIcon: theme === 'dark' ? AppleLogoWhite : AppleLogoBlack,
         crossIcon: true,
       }}
     >
       <StatusBar style="light" />
+
       <View style={style.container}>
         <TouchableOpacity style={[style.languageButton, { backgroundColor: '#946AD4', marginRight: 10 }]} onPress={() => handleChangeLanguage('fr')}>
           <Text style={style.languageButtonText}>

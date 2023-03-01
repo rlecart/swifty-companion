@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, Modal, StyleSheet, Pressable, View, Image, Text } from "react-native";
 
+import CrossIconWhite from '../../assets/icons/CrossIconWhite.png'
+// import CrossIconBlack from '../../assets/icons/CrossIconBlack.png'
+
 import RenderIf from "./RenderIf";
 
-const CustomAnimatedModal = ({ modalVisible, handleCloseModal, height, color, header, children }) => {
+const CustomAnimatedModal = ({ theme, modalVisible, handleCloseModal, height, color, header, children }) => {
   const [visible, setVisible] = useState(false);
   const animation = useRef(new Animated.Value(0));
 
@@ -78,14 +81,23 @@ const CustomAnimatedModal = ({ modalVisible, handleCloseModal, height, color, he
                 <Image style={style.headerIcon} source={header?.leftIcon} resizeMode='contain' />
               </RenderIf>
 
-              <Text style={style.headerTitleText}>
+              <Text style={[
+                style.headerTitleText,
+                theme === 'dark' && { color: '#fff' },
+              ]}>
                 {header?.title ?? ''}
               </Text>
             </View>
 
             <RenderIf isTrue={header?.crossIcon === true}>
-              <Pressable style={style.headerButtonCrossIcon} onPress={hideModal}>
-                <Image style={style.headerCrossIcon} source={require('../../assets/icons/CrossIcon.png')} resizeMode='contain' />
+              <Pressable style={[
+                style.headerButtonCrossIcon,
+                theme === 'dark' && { backgroundColor: '#2C2C2EEE' },
+                ]} onPress={hideModal}>
+                <Image style={[
+                  style.headerCrossIcon,
+                  theme === 'dark' && { tintColor: '#fff' },
+                ]} source={CrossIconWhite} resizeMode='contain' />
               </Pressable>
             </RenderIf>
           </View>
