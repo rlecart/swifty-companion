@@ -183,8 +183,9 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
             </Text>
 
             <View style={style.categoryContent}>
-              {projects.map((project, index) => {
-                // console.log('project:', project);
+              {projects?.map((project, index) => {
+                // if (project.project.name === '07')
+                //   console.log('project:', project);
                 return (
                   <View key={index} style={style.categoryContentRow}>
                     <Text style={[
@@ -234,7 +235,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
             </Text>
 
             <View style={style.categoryContent}>
-              {skills.skills.map((skill, index) => (
+              {skills?.skills?.map((skill, index) => (
                 <View key={index} style={style.categoryContentRow}>
                   <View style={style.skillContainer}>
                     <View style={style.skillHeaderContainer}>
