@@ -1,13 +1,18 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 import RenderIf from "./RenderIf";
 
 import SearchBar from "./SearchBar";
 
 const TitleWithCTA = ({ title, cta, ctaIcon, withSearchBar, allData, setDataFiltered, filterFunction }) => {
+  const theme = useColorScheme();
+  
   return (
     <View style={style.menuView}>
       <View style={style.menuViewTitleRow}>
-        <Text style={style.menuViewTitle}>{title ?? ''}</Text>
+        <Text style={[
+          style.menuViewTitle,
+          theme === 'dark' && { color: '#fff' },
+          ]}>{title ?? ''}</Text>
 
         <RenderIf isTrue={cta !== undefined && cta !== null}>
           <TouchableOpacity onPress={cta}>

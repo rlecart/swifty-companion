@@ -1,4 +1,4 @@
-import { ActionSheetIOS, ActivityIndicator, Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ActionSheetIOS, ActivityIndicator, Alert, ScrollView, StyleSheet, useColorScheme, View } from "react-native";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -12,6 +12,8 @@ import RenderIf from "../components/RenderIf";
 
 const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   const isFocused = useIsFocused();
+
+  const theme = useColorScheme();
 
   const [language, setLanguage] = useState('fr');
 
@@ -151,7 +153,10 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
         </View>
       </RenderIf>
 
-      <View style={style.container}>
+      <View style={[
+        style.container,
+        theme === 'dark' && { backgroundColor: '#171717' },
+      ]}>
         <View style={style.square} />
 
         <ScrollView style={style.scrollView}>

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { ActionSheetIOS, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActionSheetIOS, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 import RenderIf from './RenderIf';
 
 import db from '../db/db';
 
 const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend, handleAddFriend }) => {
+  const theme = useColorScheme();
+  
   const [language, setLanguage] = useState('fr');
   db.getLanguage().then(lang => setLanguage(lang));
 
@@ -43,10 +45,14 @@ const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend
   };
 
   return (
-    <View style={[cardStyle, {
-      marginTop: index !== 0 && index !== 1 ? 10 : 0,
-      marginLeft: index % 2 === 0 ? 0 : 10,
-    }]}>
+    <View style={[
+      cardStyle,
+      {
+        marginTop: index !== 0 && index !== 1 ? 10 : 0,
+        marginLeft: index % 2 === 0 ? 0 : 10,
+      },
+      friend.type === 'add' && theme === 'dark' && { backgroundColor: '#1e1e1e' },
+    ]}>
 
       <RenderIf isTrue={friend.type === 'friend' && (friend.image !== undefined && friend.image !== null)}>
         <Image source={{ uri: friend.image }} style={friend.type === 'friend' ? style.friendCardImage : null} />

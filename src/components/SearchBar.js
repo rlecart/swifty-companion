@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Button, Image, StyleSheet, TextInput, View } from 'react-native';
+import { Button, Image, StyleSheet, TextInput, useColorScheme, View } from 'react-native';
 import db from '../db/db';
 
 import RenderIf from './RenderIf';
 
 const SearchBar = ({ allData, setDataFiltered, filterFunction }) => {
+  const theme = useColorScheme();
+
   const [searchText, setSearchText] = useState('');
   const [showCancel, setShowCancel] = useState(false);
   const [language, setLanguage] = useState('fr');
@@ -40,7 +42,10 @@ const SearchBar = ({ allData, setDataFiltered, filterFunction }) => {
     <View style={style.searchBar}>
       <Image source={require('../../assets/icons/search.png')} style={style.searchIcon} />
       <TextInput
-        style={style.searchText}
+        style={[
+          style.searchText,
+          theme === 'dark' && { color: 'white' },
+        ]}
         placeholder={language === 'fr' ? 'Recherche' : 'Search'}
         onChangeText={handleChangeText}
         value={searchText}
