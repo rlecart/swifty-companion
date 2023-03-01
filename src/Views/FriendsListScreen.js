@@ -1,5 +1,5 @@
-import { ActionSheetIOS, Alert, ScrollView, StyleSheet, View } from "react-native";
-import { useEffect, useRef, useState } from "react";
+import { ActionSheetIOS, ActivityIndicator, Alert, ScrollView, StyleSheet, View } from "react-native";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 
 import TitleWithCTA from "../components/TitleWithCTA";
@@ -8,6 +8,7 @@ import db from "../db/db";
 import { filterFriends } from "../components/filters/filterFriends";
 import FriendCardsContainer from "../containers/FriendCardsContainer";
 import api from "../api/api";
+import RenderIf from "../components/RenderIf";
 
 const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   const isFocused = useIsFocused();
@@ -17,7 +18,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   const [friendsList, setFriendsList] = useState(null);
   const [friendsListFiltered, setFriendsListFiltered] = useState(null);
 
-  const isFetching = useRef(false);
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (isLoaded) {
@@ -51,10 +52,10 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   };
 
   const handleOpenFriendProfile = async (friend) => {
-    if (isFetching.current)
+    if (isFetching)
       return;
 
-    isFetching.current = true;
+    setIsFetching(true);
 
     try {
       const { login } = friend;
@@ -74,14 +75,14 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
       console.log('error handleSubmit: ', error);
     }
 
-    isFetching.current = false;
+    setIsFetching(false);
   };
 
   const handleRemoveFriend = async (friend) => {
-    if (isFetching.current)
+    if (isFetching)
       return;
 
-    isFetching.current = true;
+    setIsFetching(true);
 
     try {
       db.removeFriend(friend)
@@ -90,14 +91,12 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
       console.log('error deleting friend: ', error);
     }
 
-    isFetching.current = false;
+    setIsFetching(false);
   };
 
   const handleAddFriend = () => {
-    if (isFetching.current)
+    if (isFetching)
       return;
-
-    isFetching.current = true;
 
     Alert.prompt(
       language === 'fr' ? 'Ajouter un ami' : 'Add a friend',
@@ -112,6 +111,8 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
           onPress: async (login) => {
             if (login === '' || login === undefined || login === null)
               return;
+
+            setIsFetching(true);
 
             try {
               let student;
@@ -131,39 +132,48 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
                   : (language === 'fr' ? 'Ce student est deja dans votre liste d\'amis' : 'This student is already in your friends list'),
               );
             }
+
+            setIsFetching(false);
           },
         },
       ],
       'plain-text',
       '',
     );
-
-    isFetching.current = false;
   };
 
   return (
-    <View style={style.container}>
-      <View style={style.square} />
+    <Fragment>
 
-      <ScrollView style={style.scrollView}>
-        <TitleWithCTA
-          title={language === 'fr' ? 'Liste d\'amis' : "Friends list"}
-          withSearchBar
-          allData={friendsList}
-          setDataFiltered={setFriendsListFiltered}
-          filterFunction={filterFriends}
-        />
-        <View style={style.friendsList}>
-          <FriendCardsContainer
-            friendsListFiltered={friendsListFiltered}
-            handleOpenFriendProfile={handleOpenFriendProfile}
-            handleRemoveFriend={handleRemoveFriend}
-            handleAddFriend={handleAddFriend}
-          />
+      <RenderIf isTrue={isFetching}>
+        <View style={style.loader}>
+          {isFetching && <ActivityIndicator size="large" color="#FFA5BB" />}
         </View>
-        <View style={{ height: 50 }} />
-      </ScrollView>
-    </View >
+      </RenderIf>
+
+      <View style={style.container}>
+        <View style={style.square} />
+
+        <ScrollView style={style.scrollView}>
+          <TitleWithCTA
+            title={language === 'fr' ? 'Liste d\'amis' : "Friends list"}
+            withSearchBar
+            allData={friendsList}
+            setDataFiltered={setFriendsListFiltered}
+            filterFunction={filterFriends}
+          />
+          <View style={style.friendsList}>
+            <FriendCardsContainer
+              friendsListFiltered={friendsListFiltered}
+              handleOpenFriendProfile={handleOpenFriendProfile}
+              handleRemoveFriend={handleRemoveFriend}
+              handleAddFriend={handleAddFriend}
+            />
+          </View>
+          <View style={{ height: 50 }} />
+        </ScrollView>
+      </View >
+    </Fragment>
   );
 };
 
@@ -174,6 +184,19 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingTop: 100,
+  },
+
+  loader: {
+    zIndex: 5,
+    position: 'absolute',
+    // top: 0,
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#000000AA',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   square: {
