@@ -86,6 +86,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
       </View>
 
       <ScrollView style={style.container}>
+        <View style={style.backgroundContainer} />
 
         <View style={style.headerContainer}>
           <View style={style.square} />
@@ -267,7 +268,6 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
           </View>
 
         </View>
-
       </ScrollView>
     </Fragment>
   );
@@ -283,7 +283,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     // width: 100,
     // height: 100,
-    zIndex: -1,
+    zIndex: -999,
   },
   easter: {
     width: 70,
@@ -294,7 +294,16 @@ const style = StyleSheet.create({
     flex: 1,
     // backgroundColor: '#F2F2F7',
     paddingHorizontal: 30,
-    background: 'red'
+    // backgroundColor: 'blue',
+  },
+  backgroundContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '150%',
+    backgroundColor: '#F2F2F7',
+    // backgroundColor: 'red',
   },
 
   square: {
