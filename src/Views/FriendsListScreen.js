@@ -7,6 +7,7 @@ import TitleWithCTA from "../components/TitleWithCTA";
 import db from "../db/db";
 import { filterFriends } from "../components/filters/filterFriends";
 import FriendCardsContainer from "../containers/FriendCardsContainer";
+import api from "../api/api";
 
 const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   const isFocused = useIsFocused();
@@ -47,9 +48,29 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
     }
   };
 
-  const handleOpenFriendProfile = (friend) => {
-    console.log('friend: ', friend);
-    // navigation.navigate('FriendProfileScreen', { friend });
+  const handleOpenFriendProfile = async (friend) => {
+    try {
+      const { login } = friend;
+
+      if (login === '' || login === undefined || login === null)
+        return;
+
+      const student = await api.getStudentByLogin(login);
+      // console.log('student: ', student);
+      const projects = await api.getStudentProjects(student.id);
+      // console.log('projects: ', projects);
+      const skills = await api.getStudentSkills(student.id);
+      // console.log('skills: ', skills);
+
+      await navigation.goBack();
+      await navigation.navigate('StudentProfileScreen', {
+        student,
+        projects,
+        skills,
+      });
+    } catch (error) {
+      console.log('error handleSubmit: ', error);
+    }
   };
 
   const handleRemoveFriend = async (friend) => {
