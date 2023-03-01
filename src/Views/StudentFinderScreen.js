@@ -1,5 +1,5 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { ActionSheetIOS, ActivityIndicator, Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 
 import SettingsIcon from '../../assets/icons/settings.png';
@@ -23,6 +23,8 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
   const [searchError, setSearchError] = useState(false);
 
   const [modalLanguageVisible, setModalLanguageVisible] = useState(false);
+
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (isLoaded) {
@@ -53,14 +55,19 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
   };
 
   const handleSubmit = async (login) => {
+    if (isFetching)
+      return;
+
+    setIsFetching(true);
+
     try {
       console.log('login: ', login, isAValidLogin(login));
       if (login === '' || login === undefined || login === null)
-        return;
+        throw new Error('login is empty');
 
       if (!isAValidLogin(login)) {
         setSearchError(true);
-        return;
+        throw new Error('login is not valid');
       }
 
       const student = await api.getStudentByLogin(login);
@@ -81,11 +88,11 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
       console.log('error handleSubmit: ', error);
       setSearchError(true);
     }
-    // handleCancel();
+
+    setIsFetching(false);
   };
 
   const goToFriendsList = () => {
-    // console.log('go to friends list');
     navigation.navigate('FriendsListScreen');
   };
 
@@ -143,10 +150,22 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
             </View>
           </View>
 
-          <TouchableOpacity style={style.searchButton} onPress={() => handleSubmit(searchText)}>
-            <Text style={style.searchButtonText}>
-              {language === 'fr' ? 'ÇA PART !' : 'LET\'S GO !'}
-            </Text>
+          <TouchableOpacity style={[
+            style.searchButton,
+            isFetching && { opacity: 0.5 },
+          ]}
+            onPress={() => handleSubmit(searchText)}
+            disabled={isFetching}
+          >
+            <RenderIf isTrue={!isFetching}>
+              <Text style={style.searchButtonText}>
+                {language === 'fr' ? 'ÇA PART !' : 'LET\'S GO !'}
+              </Text>
+            </RenderIf>
+
+            <RenderIf isTrue={isFetching}>
+              <ActivityIndicator size='small' style={style.searchButtonText} />
+            </RenderIf>
           </TouchableOpacity>
         </View>
 
@@ -259,6 +278,8 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    width: 140,
+    height: 43,
   },
   searchButtonText: {
     color: '#F2F2F7',
@@ -266,6 +287,9 @@ const style = StyleSheet.create({
     fontWeight: 'bold',
     paddingHorizontal: 12,
     paddingVertical: 12,
+    textAlign: 'center',
+    width: 110,
+    height: 43,
   },
 
   bottomActionsContainer: {

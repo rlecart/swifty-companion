@@ -1,5 +1,5 @@
 import { useIsFocused } from '@react-navigation/native';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RenderIf from '../components/RenderIf';
 import db from '../db/db';
@@ -15,6 +15,8 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
   const [friendsList, setFriendsList] = useState(null);
   const [isFriend, setIsFriend] = useState(true);
+
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (isLoaded) {
@@ -33,67 +35,29 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
   };
 
   const getFriendsListFromDB = async () => {
+    setIsFetching(true);
+
     try {
       const friends = await db.getFriendsList();
-      // const friends = [
-      //   {
-      //     type: 'friend',
-      //     login: 'rlecart',
-      //     image: 'https://cdn.intra.42.fr/users/c5f1f122c36f732a9a22af2531029ff6/rlecart.jpg',
-      //   },
-      //   {
-      //     type: 'friend',
-      //     login: 'valecart',
-      //     image: 'https://cdn.intra.42.fr/users/9a6a60b928108deff03ed6f152bcd6ca/valecart.jpg',
-      //   },
-      //   {
-      //     type: 'friend',
-      //     login: 'cboudrin',
-      //     image: 'https://cdn.intra.42.fr/users/b0cf67c26a1bbcc3824f50701f9ecb23/cboudrin.jpg',
-      //   },
-      //   // {
-      //   //   type: 'friend',
-      //   //   login: 'rlecart',
-      //   //   image: 'https://cdn.intra.42.fr/users/c5f1f122c36f732a9a22af2531029ff6/rlecart.jpg',
-      //   // },
-      //   // {
-      //   //   type: 'friend',
-      //   //   login: 'valecart',
-      //   //   image: 'https://cdn.intra.42.fr/users/9a6a60b928108deff03ed6f152bcd6ca/valecart.jpg',
-      //   // },
-      //   // {
-      //   //   type: 'friend',
-      //   //   login: 'cboudrin',
-      //   //   image: 'https://cdn.intra.42.fr/users/b0cf67c26a1bbcc3824f50701f9ecb23/cboudrin.jpg',
-      //   // },
-      //   // {
-      //   //   type: 'friend',
-      //   //   login: 'rlecart',
-      //   //   image: 'https://cdn.intra.42.fr/users/c5f1f122c36f732a9a22af2531029ff6/rlecart.jpg',
-      //   // },
-      //   // {
-      //   //   type: 'friend',
-      //   //   login: 'valecart',
-      //   //   image: 'https://cdn.intra.42.fr/users/9a6a60b928108deff03ed6f152bcd6ca/valecart.jpg',
-      //   // },
-      //   // {
-      //   //   type: 'friend',
-      //   //   login: 'cboudrin',
-      //   //   image: 'https://cdn.intra.42.fr/users/b0cf67c26a1bbcc3824f50701f9ecb23/cboudrin.jpg',
-      //   // },
-      // ];
       setFriendsList(friends);
       friends.some(friend => friend.login === student.login) ? setIsFriend(true) : setIsFriend(false);
     } catch (error) {
       console.log('error fetching friendsList: ', error);
     }
+
+    setIsFetching(false);
   };
 
   const handleSetFriend = async (nextIsFriend) => {
+    if (isFetching)
+      return;
+
+    setIsFetching(true);
+
     if (nextIsFriend === isFriend)
-      return;
+      throw new Error('nextIsFriend === isFriend');
     if (student === null || student === undefined)
-      return;
+      throw new Error('student is null or undefined');
 
     try {
       if (nextIsFriend)
@@ -104,6 +68,8 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
     } catch (error) {
       console.log(`error setting friend (${student?.login}): `, error);
     }
+
+    setIsFetching(false);
   };
 
   // console.log('student: ', student);
@@ -143,9 +109,11 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
                 style={[
                   style.addToFriendsButton,
                   isFriend && style.addToFriendsButtonActive,
-                  language === 'en' && { width: 150 }
+                  language === 'en' && { width: 150 },
+                  isFetching && { opacity: 0.5 },
                 ]}
                 onPress={() => handleSetFriend(!isFriend)}
+                disabled={isFetching}
               >
                 <Text style={[
                   style.addToFriendsButtonText,

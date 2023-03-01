@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, View } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 
 import TitleWithCTA from "../components/TitleWithCTA";
@@ -16,6 +16,8 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
 
   const [friendsList, setFriendsList] = useState(null);
   const [friendsListFiltered, setFriendsListFiltered] = useState(null);
+
+  const isFetching = useRef(false);
 
   useEffect(() => {
     if (isLoaded) {
@@ -49,11 +51,16 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   };
 
   const handleOpenFriendProfile = async (friend) => {
+    if (isFetching.current)
+      return;
+
+    isFetching.current = true;
+
     try {
       const { login } = friend;
 
       if (login === '' || login === undefined || login === null)
-        return;
+        throw new Error('login is empty');
 
       const student = await api.getStudentByLogin(login);
       // console.log('student: ', student);
@@ -71,15 +78,24 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
     } catch (error) {
       console.log('error handleSubmit: ', error);
     }
+
+    isFetching.current = false;
   };
 
   const handleRemoveFriend = async (friend) => {
+    if (isFetching.current)
+      return;
+
+    isFetching.current = true;
+
     try {
       db.removeFriend(friend)
         .then(getFriendsListFromDB);
     } catch (error) {
       console.log('error deleting friend: ', error);
     }
+
+    isFetching.current = false;
   };
 
   return (
