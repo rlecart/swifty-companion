@@ -1,15 +1,36 @@
 import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActionSheetIOS, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import RenderIf from './RenderIf';
 
-const FriendCard = ({ index, friend, handleOpenFriendProfile }) => {
+import db from '../db/db';
+
+const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend }) => {
+  const [language, setLanguage] = useState('fr');
+  db.getLanguage().then(lang => setLanguage(lang));
+
   let cardStyle = style.friendCard;
 
   if (friend.type === 'add')
     cardStyle = style.friendCardAdd;
   else if (friend.type === 'empty')
     cardStyle = style.friendCardEmpty;
+
+  const handleLongPressFriend = (friend) => {
+    ActionSheetIOS.showActionSheetWithOptions({
+      options: [
+        language === 'fr' ? 'Annuler' : 'Cancel',
+        language === 'fr' ? 'Supprimer' : 'Delete',
+      ],
+      destructiveButtonIndex: 1,
+      cancelButtonIndex: 0,
+    }, (buttonIndex) => {
+      if (buttonIndex === 1) {
+        console.log('delete friend: ', friend);
+        handleRemoveFriend(friend);
+      }
+    });
+  };
 
   return (
     <View style={[cardStyle, {
@@ -33,13 +54,17 @@ const FriendCard = ({ index, friend, handleOpenFriendProfile }) => {
         {friend.type === 'add' && '+'}
       </Text>
       <RenderIf isTrue={friend.type !== 'empty'}>
-        <TouchableOpacity style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }} onPress={() => handleOpenFriendProfile(friend)} />
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}
+          onPress={() => handleOpenFriendProfile(friend)}
+          onLongPress={() => handleLongPressFriend(friend)}
+        />
       </RenderIf>
     </View>
   );

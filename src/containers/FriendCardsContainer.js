@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import FriendCard from '../components/FriendCard';
 
-const FriendCardsContainer = ({ headerColor, friendsListFiltered, handleOpenFriendProfile }) => {
+const FriendCardsContainer = ({ friendsListFiltered, handleOpenFriendProfile, handleRemoveFriend }) => {
   const [friendsList, setFriendsList] = useState(friendsListFiltered);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const FriendCardsContainer = ({ headerColor, friendsListFiltered, handleOpenFrie
   }, [friendsList]);
 
   return (
-    friendsList?.map((friend, index) => <FriendCard key={index} index={index} friend={friend} handleOpenFriendProfile={handleOpenFriendProfile} headerColor={headerColor} />)
+    friendsList?.map((friend, index) => <FriendCard key={index} index={index} friend={friend} handleOpenFriendProfile={handleOpenFriendProfile} handleRemoveFriend={handleRemoveFriend} />)
   );
 };
 
