@@ -90,6 +90,10 @@ const setAccessToken = async (accessToken) => {
 const addFriend = async (student) => {
   try {
     const friendsList = await getFriendsList();
+
+    if (friendsList.find(friend => friend.login === student.login))
+      throw new Error('Friend already added');
+    
     const newFriend = {
       type: 'friend',
       login: student.login,

@@ -5,7 +5,7 @@ import RenderIf from './RenderIf';
 
 import db from '../db/db';
 
-const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend }) => {
+const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend, handleAddFriend }) => {
   const [language, setLanguage] = useState('fr');
   db.getLanguage().then(lang => setLanguage(lang));
 
@@ -17,6 +17,9 @@ const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend
     cardStyle = style.friendCardEmpty;
 
   const handleLongPressFriend = (friend) => {
+    if (friend.type !== 'friend')
+      return;
+
     ActionSheetIOS.showActionSheetWithOptions({
       options: [
         language === 'fr' ? 'Annuler' : 'Cancel',
@@ -30,6 +33,13 @@ const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend
         handleRemoveFriend(friend);
       }
     });
+  };
+
+  const handleOnPressFriend = (friend) => {
+    if (friend.type === 'friend')
+      handleOpenFriendProfile(friend);
+    else if (friend.type === 'add')
+      handleAddFriend();
   };
 
   return (
@@ -62,7 +72,7 @@ const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend
             right: 0,
             bottom: 0,
           }}
-          onPress={() => handleOpenFriendProfile(friend)}
+          onPress={() => handleOnPressFriend(friend)}
           onLongPress={() => handleLongPressFriend(friend)}
         />
       </RenderIf>

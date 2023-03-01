@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ActionSheetIOS, Alert, ScrollView, StyleSheet, View } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -62,12 +62,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
       if (login === '' || login === undefined || login === null)
         throw new Error('login is empty');
 
-      const student = await api.getStudentByLogin(login);
-      // console.log('student: ', student);
-      const projects = await api.getStudentProjects(student.id);
-      // console.log('projects: ', projects);
-      const skills = await api.getStudentSkills(student.id);
-      // console.log('skills: ', skills);
+      const { student, projects, skills } = await api.getStudentInfosByLogin(login);
 
       await navigation.goBack();
       await navigation.navigate('StudentProfileScreen', {
@@ -98,6 +93,54 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
     isFetching.current = false;
   };
 
+  const handleAddFriend = () => {
+    if (isFetching.current)
+      return;
+
+    isFetching.current = true;
+
+    Alert.prompt(
+      language === 'fr' ? 'Ajouter un ami' : 'Add a friend',
+      language === 'fr' ? 'Entrez le login de votre ami' : 'Enter your friend\'s login',
+      [
+        {
+          text: language === 'fr' ? 'Annuler' : 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: language === 'fr' ? 'Ajouter' : 'Add',
+          onPress: async (login) => {
+            if (login === '' || login === undefined || login === null)
+              return;
+
+            try {
+              let student;
+
+              try { student = await api.getStudentByLogin(login); }
+              catch { throw new Error(404); }
+
+              try { await db.addFriend(student).then(getFriendsListFromDB); }
+              catch { throw new Error(500); }
+
+            } catch (error) {
+              console.log('error adding friend: ', error.message);
+              Alert.alert(
+                language === 'fr' ? 'Erreur' : 'Error',
+                `${error.message}` === `${404}`
+                  ? (language === 'fr' ? 'Ce student n\'existe pas' : 'This student does not exist')
+                  : (language === 'fr' ? 'Ce student est deja dans votre liste d\'amis' : 'This student is already in your friends list'),
+              );
+            }
+          },
+        },
+      ],
+      'plain-text',
+      '',
+    );
+
+    isFetching.current = false;
+  };
+
   return (
     <View style={style.container}>
       <View style={style.square} />
@@ -115,6 +158,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
             friendsListFiltered={friendsListFiltered}
             handleOpenFriendProfile={handleOpenFriendProfile}
             handleRemoveFriend={handleRemoveFriend}
+            handleAddFriend={handleAddFriend}
           />
         </View>
         <View style={{ height: 50 }} />

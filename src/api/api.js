@@ -181,8 +181,24 @@ const getStudentSkills = async (studentId) => {
   }
 };
 
+const getStudentInfosByLogin = async (login) => {
+  try {
+    const student = await getStudentByLogin(login);
+    // console.log('student: ', student);
+    const projects = await getStudentProjects(student.id);
+    // console.log('projects: ', projects);
+    const skills = await getStudentSkills(student.id);
+    // console.log('skills: ', skills);
+    return ({ student, projects, skills });
+  } catch (error) {
+    console.error('There was a problem with the fetch operation (getStudentInfosByLogin):', error);
+    throw error;
+  }
+};
+
 export default {
   getStudentByLogin,
   getStudentProjects,
   getStudentSkills,
+  getStudentInfosByLogin
 };
