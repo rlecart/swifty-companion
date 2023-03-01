@@ -68,7 +68,6 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
 
       const { student, projects, skills } = await api.getStudentInfosByLogin(login);
 
-      await navigation.goBack();
       await navigation.navigate('StudentProfileScreen', {
         student,
         projects,
