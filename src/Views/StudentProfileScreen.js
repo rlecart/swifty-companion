@@ -1,16 +1,19 @@
 import { useIsFocused } from '@react-navigation/native';
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 import PendingClock from '../../assets/icons/pending-clock.png';
-import EasterHi from '../../assets/easter/easterHi.jpg';
+import EasterHi from '../../assets/easter/easterHi.png';
 
 import RenderIf from '../components/RenderIf';
 
 import db from '../db/db';
+import { StatusBar } from 'expo-status-bar';
 
 const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
   const { student, projects, skills } = route.params;
+
+  const theme = useColorScheme();
 
   const isFocused = useIsFocused();
 
@@ -81,199 +84,226 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
   return (
     <Fragment>
-      <View style={style.easterContainer}>
-        <Image style={style.easter} source={EasterHi} />
-      </View>
+      <View style={[
+        style.themeBackground,
+        theme === 'dark' && { backgroundColor: '#171717' },
+      ]}>
+        <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
 
-      <ScrollView style={style.container}>
-        <View style={style.backgroundContainer} />
+        <View style={style.easterContainer}>
+          <Image style={style.easter} source={EasterHi} />
+        </View>
 
-        <View style={style.headerContainer}>
-          <View style={style.square} />
+        <ScrollView style={style.container}>
+          <View style={[
+            style.backgroundContainer,
+            theme === 'dark' && { backgroundColor: '#171717' },
+          ]} />
 
-          <View style={style.studentInfos}>
-            <View style={style.studentImageContainer}>
-              <Image
-                style={style.studentImage}
-                source={{ uri: student.image.link }}
-              />
-              <Text style={style.wallet}>
-                {student.wallet} W
-              </Text>
-            </View>
+          <View style={style.headerContainer}>
+            <View style={style.square} />
 
-            <View style={style.studentInfosContainer}>
-              <Text style={style.studentName}>
-                {student.displayname}
-              </Text>
-              <Text style={style.studentLogin}>
-                {student.login}
-              </Text>
-              <Text style={style.studentLocation}>
-                {student.location || '-'}
-              </Text>
-
-              <TouchableOpacity
-                style={[
-                  style.addToFriendsButton,
-                  isFriend && style.addToFriendsButtonActive,
-                  language === 'en' && { width: 150 },
-                  isFetching && { opacity: 0.5 },
-                ]}
-                onPress={() => handleSetFriend(!isFriend)}
-                disabled={isFetching}
-              >
-                <Text style={[
-                  style.addToFriendsButtonText,
-                  isFriend && style.addToFriendsButtonTextActive,
-                ]}>
-                  <RenderIf isTrue={!isFriend}>
-                    {language === 'fr' ? '+ Ajouter aux amis' : '+ Add to friend'}
-                  </RenderIf>
-
-                  <RenderIf isTrue={isFriend}>
-                    {language === 'fr' ? '- Retirer des amis' : '- Remove friend'}
-                  </RenderIf>
+            <View style={style.studentInfos}>
+              <View style={style.studentImageContainer}>
+                <Image
+                  style={style.studentImage}
+                  source={{ uri: student.image.link }}
+                />
+                <Text style={style.wallet}>
+                  {student.wallet} W
                 </Text>
-              </TouchableOpacity>
+              </View>
+
+              <View style={style.studentInfosContainer}>
+                <Text style={style.studentName}>
+                  {student.displayname}
+                </Text>
+                <Text style={style.studentLogin}>
+                  {student.login}
+                </Text>
+                <Text style={style.studentLocation}>
+                  {student.location || '-'}
+                </Text>
+
+                <TouchableOpacity
+                  style={[
+                    style.addToFriendsButton,
+                    isFriend && style.addToFriendsButtonActive,
+                    language === 'en' && { width: 150 },
+                    isFetching && { opacity: 0.5 },
+                  ]}
+                  onPress={() => handleSetFriend(!isFriend)}
+                  disabled={isFetching}
+                >
+                  <Text style={[
+                    style.addToFriendsButtonText,
+                    isFriend && style.addToFriendsButtonTextActive,
+                  ]}>
+                    <RenderIf isTrue={!isFriend}>
+                      {language === 'fr' ? '+ Ajouter aux amis' : '+ Add to friend'}
+                    </RenderIf>
+
+                    <RenderIf isTrue={isFriend}>
+                      {language === 'fr' ? '- Retirer des amis' : '- Remove friend'}
+                    </RenderIf>
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-          <View style={style.levelContainer}>
-            <View style={style.level}>
-              <Text style={style.levelText}>
-                lvl
-              </Text>
-              <View style={style.levelNumberContainer}>
-                <View style={style.levelNumberSquare}>
-                  <Text style={style.levelNumber}>
-                    {Math.trunc(skills?.level) || '-'}
+            <View style={style.levelContainer}>
+              <View style={style.level}>
+                <Text style={style.levelText}>
+                  lvl
+                </Text>
+                <View style={style.levelNumberContainer}>
+                  <View style={style.levelNumberSquare}>
+                    <Text style={style.levelNumber}>
+                      {Math.trunc(skills?.level) || '-'}
+                    </Text>
+                  </View>
+                  <View style={style.levelNumberTriangle} />
+                </View>
+                <View style={style.levelPercentContainer}>
+                  <Text style={style.levelPercent}>
+                    {Math.trunc((skills?.level - Math.trunc(skills?.level)) * 100) || '0'}%
                   </Text>
                 </View>
-                <View style={style.levelNumberTriangle} />
-              </View>
-              <View style={style.levelPercentContainer}>
-                <Text style={style.levelPercent}>
-                  {Math.trunc((skills?.level - Math.trunc(skills?.level)) * 100) || '0'}%
-                </Text>
               </View>
             </View>
           </View>
-        </View>
 
-        <View style={style.bodyContainer}>
-          <View style={style.categoryContainer}>
+          <View style={style.bodyContainer}>
+            <View style={style.categoryContainer}>
 
-            <Text style={style.categoryTitle}>
-              {language === 'fr' ? 'Informations' : 'Informations'}
-            </Text>
+              <Text style={[
+                style.categoryTitle,
+                theme === 'dark' && { color: 'white' }
+              ]}>
+                {language === 'fr' ? 'Informations' : 'Informations'}
+              </Text>
 
-            <View style={style.categoryContent}>
+              <View style={style.categoryContent}>
 
-              <View style={style.categoryContentRow}>
-                <Text style={style.categoryContentRowText}>
-                  {student.phone}
-                </Text>
+                <View style={style.categoryContentRow}>
+                  <Text style={style.categoryContentRowText}>
+                    {student.phone}
+                  </Text>
+                </View>
+
+                <View style={style.categoryContentRow}>
+                  <Text style={style.categoryContentRowText}>
+                    {student.email}
+                  </Text>
+                </View>
+
               </View>
-
-              <View style={style.categoryContentRow}>
-                <Text style={style.categoryContentRowText}>
-                  {student.email}
-                </Text>
-              </View>
-
             </View>
-          </View>
 
-          <View style={style.categoryContainer}>
+            <View style={style.categoryContainer}>
 
-            <Text style={style.categoryTitle}>
-              {language === 'fr' ? 'Projets' : 'Projects'}
-            </Text>
+              <Text style={[
+                style.categoryTitle,
+                theme === 'dark' && { color: 'white' }
+              ]}>
+                {language === 'fr' ? 'Projets' : 'Projects'}
+              </Text>
 
-            <View style={style.categoryContent}>
-              {projects?.map((project, index) => {
-                // if (project.project.name === '07')
-                //   console.log('project:', project);
-                return (
-                  <View key={index} style={style.categoryContentRow}>
-                    <Text style={[
-                      style.categoryContentRowText, {
-                        maxWidth: '75%',
-                        color: '#B6B6C1',
-                      },
-                      project.status === 'finished' && (project['validated?']
-                        ? style.categoryContentRowTextValidated : style.categoryContentRowTextFailed),
-                      project.status === 'in_progress' && style.categoryContentRowTextInProgress,
-                    ]}
-                      numberOfLines={1}
-                    >
-                      {project.project.name}
-                    </Text>
-
-                    <View style={[
-                      style.projectEvaluation,
-                      project.status === 'finished' && (project['validated?']
-                        ? style.projectEvaluationValidated : style.projectEvaluationFailed),
-                      project.status === 'in_progress' && style.projectEvaluationInProgress,
-                    ]}>
-                      <RenderIf isTrue={project.status !== 'in_progress'}>
-                        <Text style={[
-                          style.projectEvaluationText,
-                          project.status === 'finished' && (project['validated?']
-                            ? style.projectEvaluationTextValidated : style.projectEvaluationTextFailed),
-                        ]}>
-                          {project.final_mark || (project.status === 'finished' ? '0' : '-')}
-                        </Text>
-                      </RenderIf>
-
-                      <RenderIf isTrue={project.status === 'in_progress'}>
-                        <Image source={PendingClock} style={style.pendingClock} />
-                      </RenderIf>
-                    </View>
-                  </View>
-                );
-              })
-              }
-            </View>
-          </View>
-
-          <View style={style.categoryContainer}>
-            <Text style={style.categoryTitle}>
-              {language === 'fr' ? 'Compétences' : 'Skills'}
-            </Text>
-
-            <View style={style.categoryContent}>
-              {skills?.skills?.map((skill, index) => (
-                <View key={index} style={style.categoryContentRow}>
-                  <View style={style.skillContainer}>
-                    <View style={style.skillHeaderContainer}>
-                      <Text
-                        style={[style.skillName, { maxWidth: '80%' }]}
+              <View style={style.categoryContent}>
+                {projects?.map((project, index) => {
+                  // if (project.project.name === '07')
+                  //   console.log('project:', project);
+                  return (
+                    <View key={index} style={style.categoryContentRow}>
+                      <Text style={[
+                        style.categoryContentRowText, {
+                          maxWidth: '75%',
+                          color: '#B6B6C1',
+                        },
+                        project.status === 'finished' && (project['validated?']
+                          ? style.categoryContentRowTextValidated : style.categoryContentRowTextFailed),
+                        project.status === 'in_progress' && style.categoryContentRowTextInProgress,
+                      ]}
                         numberOfLines={1}
                       >
-                        {skill.name}
+                        {project.project.name}
                       </Text>
-                      <Text style={style.skillPercentage}>
-                        {(skill.level / 20 * 100).toFixed(2)}%
-                      </Text>
-                    </View>
 
-                    <View style={style.skillProgressBarContainer}>
-                      <View style={[style.skillProgressBar, { width: `${skill.level / 20 * 100}%` }]} />
+                      <View style={[
+                        style.projectEvaluation,
+                        project.status === 'finished' && (project['validated?']
+                          ? style.projectEvaluationValidated : style.projectEvaluationFailed),
+                        project.status === 'in_progress' && style.projectEvaluationInProgress,
+                      ]}>
+                        <RenderIf isTrue={project.status !== 'in_progress'}>
+                          <Text style={[
+                            style.projectEvaluationText,
+                            theme === 'dark' && { color: 'black' },
+                            project.status === 'finished' && (project['validated?']
+                              ? style.projectEvaluationTextValidated : style.projectEvaluationTextFailed),
+                          ]}>
+                            {project.final_mark || (project.status === 'finished' ? '0' : '-')}
+                          </Text>
+                        </RenderIf>
+
+                        <RenderIf isTrue={project.status === 'in_progress'}>
+                          <Image source={PendingClock} style={style.pendingClock} />
+                        </RenderIf>
+                      </View>
+                    </View>
+                  );
+                })
+                }
+              </View>
+            </View>
+
+            <View style={style.categoryContainer}>
+              <Text style={[
+                style.categoryTitle,
+                theme === 'dark' && { color: 'white' }
+              ]}>
+                {language === 'fr' ? 'Compétences' : 'Skills'}
+              </Text>
+
+              <View style={style.categoryContent}>
+                {skills?.skills?.map((skill, index) => (
+                  <View key={index} style={style.categoryContentRow}>
+                    <View style={style.skillContainer}>
+                      <View style={style.skillHeaderContainer}>
+                        <Text
+                          style={[style.skillName, { maxWidth: '80%' }]}
+                          numberOfLines={1}
+                        >
+                          {skill.name}
+                        </Text>
+                        <Text style={style.skillPercentage}>
+                          {(skill.level / 20 * 100).toFixed(2)}%
+                        </Text>
+                      </View>
+
+                      <View style={style.skillProgressBarContainer}>
+                        <View style={[style.skillProgressBar, { width: `${skill.level / 20 * 100}%` }]} />
+                      </View>
                     </View>
                   </View>
-                </View>
-              ))}
+                ))}
+              </View>
             </View>
-          </View>
 
-        </View>
-      </ScrollView>
+          </View>
+        </ScrollView>
+
+      </View>
     </Fragment>
   );
 };
 
 const style = StyleSheet.create({
+  themeBackground: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#F2F2F7',
+  },
+
   easterContainer: {
     position: 'absolute',
     top: 100,

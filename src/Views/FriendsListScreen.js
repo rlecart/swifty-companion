@@ -9,6 +9,7 @@ import { filterFriends } from "../components/filters/filterFriends";
 import FriendCardsContainer from "../containers/FriendCardsContainer";
 import api from "../api/api";
 import RenderIf from "../components/RenderIf";
+import { StatusBar } from "expo-status-bar";
 
 const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   const isFocused = useIsFocused();
@@ -146,6 +147,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
 
   return (
     <Fragment>
+      <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
 
       <RenderIf isTrue={isFetching}>
         <View style={style.loader}>

@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { ActionSheetIOS, ActivityIndicator, Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActionSheetIOS, ActivityIndicator, Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 
 import SettingsIcon from '../../assets/icons/settings.png';
@@ -12,9 +12,12 @@ import { isAValidLogin } from '../utils/utils';
 
 import db from '../db/db';
 import api from '../api/api';
+import { StatusBar } from 'expo-status-bar';
 
 const StudentFinderScreen = ({ navigation, isLoaded }) => {
   const isFocused = useIsFocused();
+
+  const theme = useColorScheme();
 
   const [language, setLanguage] = useState('fr');
 
@@ -105,12 +108,17 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
 
   return (
     <Fragment>
+      <StatusBar style='dark' />
+
       <ModalSetLanguage
         modalVisible={modalLanguageVisible}
         handleCloseModal={handleCloseLanguageModal}
       />
 
-      <View style={style.container}>
+      <View style={[
+        style.container,
+        theme === 'dark' && { backgroundColor: '#171717' },
+      ]}>
         <View style={style.square} />
 
         <View style={style.logoContainer}>
@@ -127,6 +135,7 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
               <Image source={require('../../assets/icons/search.png')} style={style.searchIcon} />
               <TextInput
                 style={style.searchText}
+                placeholderTextColor={theme === 'dark' ? '#98989F80' : '#7F7F8580'}
                 placeholder={language === 'fr' ? 'Login' : 'Login'}
                 onChangeText={handleChangeText}
                 value={searchText}
