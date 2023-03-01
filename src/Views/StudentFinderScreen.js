@@ -70,11 +70,13 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
       const skills = await api.getStudentSkills(student.id);
       // console.log('skills: ', skills);
 
-      navigation.navigate('StudentProfileScreen', {
+
+      await navigation.navigate('StudentProfileScreen', {
         student,
         projects,
         skills,
       });
+      handleCancel();
     } catch (error) {
       console.log('error handleSubmit: ', error);
       setSearchError(true);
