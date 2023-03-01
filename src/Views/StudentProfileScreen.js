@@ -1,10 +1,13 @@
 import { useIsFocused } from '@react-navigation/native';
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import RenderIf from '../components/RenderIf';
-import db from '../db/db';
 
 import PendingClock from '../../assets/icons/pending-clock.png';
+import EasterHi from '../../assets/easter/easterHi.jpg';
+
+import RenderIf from '../components/RenderIf';
+
+import db from '../db/db';
 
 const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
   const { student, projects, skills } = route.params;
@@ -78,6 +81,10 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
   return (
     <Fragment>
+      <View style={style.easterContainer}>
+        <Image style={style.easter} source={EasterHi} />
+      </View>
+
       <ScrollView style={style.container}>
 
         <View style={style.headerContainer}>
@@ -267,11 +274,27 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 };
 
 const style = StyleSheet.create({
+  easterContainer: {
+    position: 'absolute',
+    top: 100,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    // width: 100,
+    // height: 100,
+    zIndex: -1,
+  },
+  easter: {
+    width: 70,
+    height: 70,
+  },
+
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    // backgroundColor: '#F2F2F7',
     paddingHorizontal: 30,
-    // background: 'red'
+    background: 'red'
   },
 
   square: {
