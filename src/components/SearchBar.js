@@ -11,7 +11,6 @@ const SearchBar = ({ allData, setDataFiltered, filterFunction }) => {
   const [showCancel, setShowCancel] = useState(false);
   const [language, setLanguage] = useState('fr');
   db.getLanguage().then(lang => setLanguage(lang));
-  console.log('language: ', language);
 
   const handleCancel = () => {
     setSearchText('');

@@ -1,6 +1,7 @@
-import { useIsFocused } from '@react-navigation/native';
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
 
 import PendingClock from '../../assets/icons/pending-clock.png';
 import EasterHi from '../../assets/easter/easterHi.png';
@@ -8,7 +9,6 @@ import EasterHi from '../../assets/easter/easterHi.png';
 import RenderIf from '../components/RenderIf';
 
 import db from '../db/db';
-import { StatusBar } from 'expo-status-bar';
 
 const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
   const { student, projects, skills } = route.params;
@@ -36,7 +36,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
       const language = await db.getLanguage();
       setLanguage(language);
     } catch (error) {
-      console.log('error fetching language: ', error);
+      console.error('error fetching language: ', error);
     }
   };
 
@@ -48,7 +48,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
       setFriendsList(friends);
       friends.some(friend => friend.login === student.login) ? setIsFriend(true) : setIsFriend(false);
     } catch (error) {
-      console.log('error fetching friendsList: ', error);
+      console.error('error fetching friendsList: ', error);
     }
 
     setIsFetching(false);
@@ -72,15 +72,13 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
         await db.removeFriend(student);
       setIsFriend(nextIsFriend);
     } catch (error) {
-      console.log(`error setting friend (${student?.login}): `, error);
+      console.error(`error setting friend (${student?.login}): `, error);
     }
 
     setIsFetching(false);
   };
 
-  // console.log('student: ', student);
-  // console.log('projects: ', projects);
-  // console.log('skills: ', skills);
+  const allProjects = projects?.filter(p => p?.cursus_ids?.find(e => e === skills.cursusId));
 
   return (
     <Fragment>
@@ -107,7 +105,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
               <View style={style.studentImageContainer}>
                 <Image
                   style={style.studentImage}
-                  source={{ uri: student.image.link }}
+                  source={{ uri: student?.image?.link }}
                 />
                 <Text style={style.wallet}>
                   {student.wallet} W
@@ -165,7 +163,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
                 </View>
                 <View style={style.levelPercentContainer}>
                   <Text style={style.levelPercent}>
-                    {Math.trunc((skills?.level - Math.trunc(skills?.level)) * 100) || '0'}%
+                    {`${skills?.level * 1000}`.slice(-3).slice(0, 2) || '0'}%
                   </Text>
                 </View>
               </View>
@@ -199,20 +197,18 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
               </View>
             </View>
 
-            <View style={style.categoryContainer}>
+            <RenderIf isTrue={allProjects?.length > 0}>
+              <View style={style.categoryContainer}>
 
-              <Text style={[
-                style.categoryTitle,
-                theme === 'dark' && { color: 'white' }
-              ]}>
-                {language === 'fr' ? 'Projets' : 'Projects'}
-              </Text>
+                <Text style={[
+                  style.categoryTitle,
+                  theme === 'dark' && { color: 'white' }
+                ]}>
+                  {language === 'fr' ? 'Projets' : 'Projects'}
+                </Text>
 
-              <View style={style.categoryContent}>
-                {projects?.map((project, index) => {
-                  // if (project.project.name === '07')
-                  //   console.log('project:', project);
-                  return (
+                <View style={style.categoryContent}>
+                  {allProjects?.map((project, index) => (
                     <View key={index} style={style.categoryContentRow}>
                       <Text style={[
                         style.categoryContentRowText, {
@@ -250,50 +246,51 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
                         </RenderIf>
                       </View>
                     </View>
-                  );
-                })
-                }
+                  ))}
+                </View>
               </View>
-            </View>
+            </RenderIf>
 
-            <View style={style.categoryContainer}>
-              <Text style={[
-                style.categoryTitle,
-                theme === 'dark' && { color: 'white' }
-              ]}>
-                {language === 'fr' ? 'Compétences' : 'Skills'}
-              </Text>
+            <RenderIf isTrue={skills?.skills?.length > 0}>
+              <View style={style.categoryContainer}>
+                <Text style={[
+                  style.categoryTitle,
+                  theme === 'dark' && { color: 'white' }
+                ]}>
+                  {language === 'fr' ? 'Compétences' : 'Skills'}
+                </Text>
 
-              <View style={style.categoryContent}>
-                {skills?.skills?.map((skill, index) => (
-                  <View key={index} style={style.categoryContentRow}>
-                    <View style={style.skillContainer}>
-                      <View style={style.skillHeaderContainer}>
-                        <Text
-                          style={[style.skillName, { maxWidth: '80%' }]}
-                          numberOfLines={1}
-                        >
-                          {skill.name}
-                        </Text>
-                        <Text style={style.skillPercentage}>
-                          {(skill.level / 20 * 100).toFixed(2)}%
-                        </Text>
-                      </View>
+                <View style={style.categoryContent}>
+                  {skills?.skills?.map((skill, index) => (
+                    <View key={index} style={style.categoryContentRow}>
+                      <View style={style.skillContainer}>
+                        <View style={style.skillHeaderContainer}>
+                          <Text
+                            style={[style.skillName, { maxWidth: '80%' }]}
+                            numberOfLines={1}
+                          >
+                            {skill.name}
+                          </Text>
+                          <Text style={style.skillPercentage}>
+                            {(skill.level / 20 * 100).toFixed(2)}%
+                          </Text>
+                        </View>
 
-                      <View style={style.skillProgressBarContainer}>
-                        <View style={[style.skillProgressBar, { width: `${skill.level / 20 * 100}%` }]} />
+                        <View style={style.skillProgressBarContainer}>
+                          <View style={[style.skillProgressBar, { width: `${skill.level / 20 * 100}%` }]} />
+                        </View>
                       </View>
                     </View>
-                  </View>
-                ))}
+                  ))}
+                </View>
               </View>
-            </View>
+            </RenderIf>
 
           </View>
         </ScrollView>
 
-      </View>
-    </Fragment>
+      </View >
+    </Fragment >
   );
 };
 
@@ -311,8 +308,6 @@ const style = StyleSheet.create({
     width: '100%',
     height: '100%',
     alignItems: 'center',
-    // width: 100,
-    // height: 100,
     zIndex: -999,
   },
   easter: {
@@ -322,9 +317,7 @@ const style = StyleSheet.create({
 
   container: {
     flex: 1,
-    // backgroundColor: '#F2F2F7',
     paddingHorizontal: 30,
-    // backgroundColor: 'blue',
   },
   backgroundContainer: {
     position: 'absolute',
@@ -333,12 +326,10 @@ const style = StyleSheet.create({
     width: '100%',
     height: '150%',
     backgroundColor: '#F2F2F7',
-    // backgroundColor: 'red',
   },
 
   square: {
     position: 'absolute',
-    // top: -150, // -120
     bottom: 295,
     left: 0,
     width: 200,
@@ -356,9 +347,7 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    // backgroundColor: '#1E1E1E',
     marginTop: 100,
-    // padding: 20,
   },
   studentInfos: {
     flex: 1,
@@ -367,7 +356,6 @@ const style = StyleSheet.create({
     alignItems: 'flex-start',
   },
   studentImageContainer: {
-    // flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -376,8 +364,6 @@ const style = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: '100%',
-    // borderWidth: 2,
-    // borderColor: '#F2F2F7',
     marginBottom: 10,
   },
   wallet: {
@@ -389,8 +375,6 @@ const style = StyleSheet.create({
 
   studentInfosContainer: {
     flex: 1,
-    // height: '100%',
-    // backgroundColor: 'red',
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -398,14 +382,12 @@ const style = StyleSheet.create({
     marginTop: 10,
   },
   studentName: {
-    // backgroundColor: 'red',
     color: '#246B68',
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'left',
   },
   studentLogin: {
-    // backgroundColor: 'red',
     color: '#246B68',
     fontSize: 16,
     fontWeight: 'light',
@@ -413,7 +395,6 @@ const style = StyleSheet.create({
     marginBottom: 5,
   },
   studentLocation: {
-    // backgroundColor: 'red',
     color: '#246B68',
     fontSize: 16,
     fontWeight: 'light',
@@ -444,17 +425,13 @@ const style = StyleSheet.create({
   },
 
   levelContainer: {
-    // flex: 1,
     width: '100%',
-    // flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-end',
     marginTop: 10,
-    // backgroundColor: 'red',
   },
   level: {
     justifyContent: 'space-between',
-    // backgroundColor: 'red',
     width: 50,
     height: 100,
   },
@@ -465,30 +442,15 @@ const style = StyleSheet.create({
     textAlign: 'center',
   },
   levelNumberContainer: {
-    // position: 'absolute',
-    // top: 22,
-    // // left: 0,
-    // // right: 0,
-    // // width: '100%',
-    // // height: '100%',
     width: 50,
-    // height: 35,
     height: 55,
-    // backgroundColor: 'red',
     justifyContent: 'center',
     alignItems: 'center',
-    // transform: [
-    // { rotate: '18deg' },
-    // { scaleX: 7 },
-    // { scaleY: 3.4 },
-    // ],
   },
   levelNumberSquare: {
     position: 'absolute',
     marginHorizontal: 'auto',
     top: 0,
-    // left: 0,
-    // right: 0,
     width: '100%',
     height: 35,
     backgroundColor: '#FFE175',
@@ -504,7 +466,6 @@ const style = StyleSheet.create({
     backgroundColor: 'transparent',
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    // borderBottomColor: 'red',
     borderBottomColor: '#FFE175',
     bottom: 0,
     position: 'absolute',
@@ -513,8 +474,6 @@ const style = StyleSheet.create({
     ],
   },
   levelNumber: {
-    // height: '100%',
-    // backgroundColor: 'red',
     color: '#246B68',
     fontSize: 20,
     fontWeight: 800,
@@ -535,19 +494,15 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    // backgroundColor: '#1E1E1E',
     paddingBottom: 50,
-    // padding: 20,
   },
   categoryContainer: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    // backgroundColor: 'red',
     marginTop: 15,
     marginBottom: 10,
-    // padding: 20,
   },
   categoryTitle: {
     color: 'black',
@@ -561,9 +516,6 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    // backgroundColor: '#1E1E1E',
-    // marginTop: 20,
-    // padding: 20,
   },
   categoryContentRow: {
     flex: 1,
@@ -571,16 +523,12 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    // backgroundColor: '#1E1E1E',
-    // marginVertical: 5,
-    // padding: 20,
   },
   categoryContentRowText: {
     color: '#85858B',
     fontSize: 18,
     textAlign: 'left',
     marginVertical: 10,
-    // backgroundColor: 'red',
   },
   categoryContentRowTextValidated: {
     color: '#42A43F',
@@ -632,10 +580,8 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    // backgroundColor: '#1E1E1E',
     marginTop: 10,
     marginBottom: 10,
-    // padding: 20,
   },
   skillHeaderContainer: {
     width: '100%',
@@ -647,23 +593,22 @@ const style = StyleSheet.create({
   skillName: {
     color: '#85858B',
     fontSize: 18,
-    // fontWeight: 'bold',
     textAlign: 'left',
   },
   skillPercentage: {
     color: '#5BA47A',
     fontSize: 16,
-    // fontWeight: 'bold', 
     textAlign: 'right',
   },
   skillProgressBarContainer: {
     width: '100%',
+    maxWidth: '100%',
     height: 12,
     backgroundColor: '#9BD1B2',
     borderRadius: '100%',
   },
   skillProgressBar: {
-    // width: '100%',
+    maxWidth: '100%',
     height: 12,
     backgroundColor: '#5BA47A',
     borderRadius: '100%',

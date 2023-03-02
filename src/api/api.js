@@ -1,8 +1,15 @@
 import db from '../db/db';
 
+import { CLIENT_ID, CLIENT_SECRET } from '@env';
+
 const apiEndpoint = 'https://api.intra.42.fr/v2';
 
 const credentials = require('../../secrets/credentials.json');
+// console.log('process.env.CLIENT_ID: ', process.env, CLIENT_ID, CLIENT_SECRET);
+// const credentials = {
+//   client_id: CLIENT_ID,
+//   client_secret: CLIENT_SECRET,
+// };
 
 const askNewAccessToken = async () => {
   const options = {
@@ -14,7 +21,6 @@ const askNewAccessToken = async () => {
     client_id: credentials.client_id,
     client_secret: credentials.client_secret,
   };
-  // console.log('ARRETEZ TOUT OUI')
 
   try {
     const response = await fetch(`${apiEndpoint}/oauth/token/?` + new URLSearchParams(params), options);
@@ -30,7 +36,7 @@ const askNewAccessToken = async () => {
         const data = JSON.parse(reader.result);
         if (data === undefined || data === null)
           reject(new Error(`Can't reach the access token`));
-        setTimeout(() => resolve(data), 1000);
+        setTimeout(() => resolve(data), 1500);
       };
     });
   } catch (error) {
@@ -42,7 +48,7 @@ const getAccessToken = async () => {
   try {
     let actualAccessToken = await db.getAccessToken();
 
-    const now = Math.floor(new Date().getTime() / 1000);
+    const now = Math.floor(new Date().getTime() / 1500);
     const tokenDateLimit = actualAccessToken?.created_at + actualAccessToken?.expires_in;
 
     if (actualAccessToken === undefined || actualAccessToken === null
@@ -54,10 +60,9 @@ const getAccessToken = async () => {
       actualAccessToken = newAccessToken;
     }
 
-    console.log('actualAccessToken: ', actualAccessToken?.access_token);
     return (actualAccessToken?.access_token);
   } catch (error) {
-    console.log('error fetching access token: ', error);
+    console.error('error fetching access token: ', error);
     throw error;
   }
 };
@@ -65,10 +70,9 @@ const getAccessToken = async () => {
 const getStudentByLogin = async (login, alreadyWaited) => {
   try {
     if (alreadyWaited !== true)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
     const accessToken = await getAccessToken();
-    console.log('token: ', accessToken);
 
     const options = {
       method: 'GET',
@@ -94,7 +98,7 @@ const getStudentByLogin = async (login, alreadyWaited) => {
         const data = JSON.parse(reader.result);
         if (data === undefined || data === null || data.length !== 1)
           reject(new Error(`No user found with login ${login}`));
-        resolve(data?.[0]);
+        setTimeout(() => resolve(data?.[0]), 200);
       };
     });
   } catch (error) {
@@ -106,10 +110,9 @@ const getStudentByLogin = async (login, alreadyWaited) => {
 const getStudentProjects = async (studentId, alreadyWaited) => {
   try {
     if (alreadyWaited !== true)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
     const accessToken = await getAccessToken();
-    console.log('token: ', accessToken);
 
     const options = {
       method: 'GET',
@@ -147,7 +150,7 @@ const getStudentProjects = async (studentId, alreadyWaited) => {
             const data = JSON.parse(reader.result);
             if (data === undefined || data === null)
               reject(new Error(`No projects array found with user_id ${studentId}`));
-            resolve(data);
+            setTimeout(() => resolve(data), 200);
           };
         });
       })();
@@ -158,16 +161,14 @@ const getStudentProjects = async (studentId, alreadyWaited) => {
 
       timeSpend[timeSpendIndex] = dateAfter - dateBefore;
 
-      const timeLeft = 1000 - (timeSpend[0] + timeSpend[1]);
+      const timeLeft = 1500 - (timeSpend[0] + timeSpend[1]);
       if (timeSpend[0] !== 0 && timeSpend[1] !== 0 && timeLeft > 0) {
         timeSpend[0] = 0;
         timeSpend[1] = 0;
         await new Promise(resolve => setTimeout(resolve, timeLeft));
       }
 
-      // await new Promise(resolve => setTimeout(resolve, 500));
     } while (lastResult?.length > 0);
-    // console.log('allResults: ', allResults, allResults.length);
 
     return (allResults);
 
@@ -180,10 +181,9 @@ const getStudentProjects = async (studentId, alreadyWaited) => {
 const getStudentSkills = async (studentId, alreadyWaited) => {
   try {
     if (alreadyWaited !== true)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
     const accessToken = await getAccessToken();
-    console.log('token: ', accessToken);
 
     const options = {
       method: 'GET',
@@ -203,9 +203,9 @@ const getStudentSkills = async (studentId, alreadyWaited) => {
     let timeSpend = [0, 0];
 
     let level = null;
+    let cursusId = null;
 
     do {
-      console.log('page: ', page);
       const dateBefore = new Date();
       let timeSpendIndex = 0;
 
@@ -227,7 +227,10 @@ const getStudentSkills = async (studentId, alreadyWaited) => {
 
             if (level === null)
               level = data?.[0]?.level;
-            resolve(data?.[0]?.skills || []);
+            if (cursusId === null)
+              cursusId = data?.[0]?.cursus_id;
+
+            setTimeout(() => resolve(data?.[0]?.skills || []), 200);
           };
         });
 
@@ -237,20 +240,20 @@ const getStudentSkills = async (studentId, alreadyWaited) => {
 
       const dateAfter = new Date();
       timeSpend[timeSpendIndex] = dateAfter - dateBefore;
-      console.log('timeSpend: ', timeSpend);
 
-      const timeLeft = 1000 - (timeSpend[0] + timeSpend[1]);
-      console.log('timeLeft: ', timeLeft);
+      const timeLeft = 1500 - (timeSpend[0] + timeSpend[1]);
       if (timeSpend[0] !== 0 && timeSpend[1] !== 0 && timeLeft > 0) {
         timeSpend[0] = 0;
         timeSpend[1] = 0;
         await new Promise(resolve => setTimeout(resolve, timeLeft));
       }
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-
     } while (lastResult?.length > 0);
 
-    return ({ level: level, skills: allResults });
+    return ({
+      level: level,
+      skills: allResults,
+      cursusId: cursusId,
+    });
   } catch (error) {
     console.error('There was a problem with the fetch operation:', error);
     throw error;
@@ -259,33 +262,22 @@ const getStudentSkills = async (studentId, alreadyWaited) => {
 
 const getStudentInfosByLogin = async (login) => {
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const dateBefore = new Date();
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     const studentBefore = new Date();
     const student = await getStudentByLogin(login, true);
     const studentAfter = new Date();
-    await new Promise(resolve => setTimeout(resolve, 1000 - (studentAfter - studentBefore)));
-    console.log('student: ', student);
+    await new Promise(resolve => setTimeout(resolve, 1500 - (studentAfter - studentBefore)));
 
     const projectsBefore = new Date();
     const projects = await getStudentProjects(student.id, true);
     const projectsAfter = new Date();
-    await new Promise(resolve => setTimeout(resolve, 1000 - ((projectsAfter - projectsBefore) % 1000)));
-    console.log('projects: ', projects);
+    await new Promise(resolve => setTimeout(resolve, 1500 - ((projectsAfter - projectsBefore) % 1500)));
 
     const skillsBefore = new Date();
     const skills = await getStudentSkills(student.id, true);
     const skillsAfter = new Date();
-    await new Promise(resolve => setTimeout(resolve, 1000 - ((skillsAfter - skillsBefore) % 1000)));
-    console.log('skills: ', skills);
-
-    const dateAfter = new Date();
-    console.log('time: ', dateAfter - dateBefore);
-
-    // const projects = [];
-    // const skills = { skills: [] };
+    await new Promise(resolve => setTimeout(resolve, 1500 - ((skillsAfter - skillsBefore) % 1500)));
 
     return ({ student, projects, skills });
   } catch (error) {

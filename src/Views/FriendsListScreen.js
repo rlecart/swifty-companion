@@ -1,15 +1,16 @@
-import { ActionSheetIOS, ActivityIndicator, Alert, ScrollView, StyleSheet, useColorScheme, View } from "react-native";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, useColorScheme, View } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-
-import TitleWithCTA from "../components/TitleWithCTA";
+import { StatusBar } from "expo-status-bar";
 
 import db from "../db/db";
+
+import api from "../api/api";
+
+import TitleWithCTA from "../components/TitleWithCTA";
 import { filterFriends } from "../components/filters/filterFriends";
 import FriendCardsContainer from "../containers/FriendCardsContainer";
-import api from "../api/api";
 import RenderIf from "../components/RenderIf";
-import { StatusBar } from "expo-status-bar";
 
 const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   const isFocused = useIsFocused();
@@ -31,7 +32,6 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
   }, [isLoaded, isFocused]);
 
   useEffect(() => {
-    console.log('friendsList: ', friendsList);
     if (friendsList !== undefined && friendsList !== null)
       setFriendsListFiltered(friendsList);
   }, [friendsList]);
@@ -41,7 +41,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
       const language = await db.getLanguage();
       setLanguage(language);
     } catch (error) {
-      console.log('error fetching language: ', error);
+      console.error('error fetching language: ', error);
     }
   };
 
@@ -50,7 +50,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
       const friends = await db.getFriendsList();
       setFriendsList(friends);
     } catch (error) {
-      console.log('error fetching friendsList: ', error);
+      console.error('error fetching friendsList: ', error);
     }
   };
 
@@ -74,7 +74,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
         skills,
       });
     } catch (error) {
-      console.log('error handleSubmit: ', error);
+      console.error('error handleSubmit: ', error);
     }
 
     setIsFetching(false);
@@ -90,7 +90,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
       db.removeFriend(friend)
         .then(getFriendsListFromDB);
     } catch (error) {
-      console.log('error deleting friend: ', error);
+      console.error('error deleting friend: ', error);
     }
 
     setIsFetching(false);
@@ -126,7 +126,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
               catch { throw new Error(500); }
 
             } catch (error) {
-              console.log('error adding friend: ', error.message);
+              console.error('error adding friend: ', error.message);
               Alert.alert(
                 language === 'fr' ? 'Erreur' : 'Error',
                 `${error.message}` === `${404}`
@@ -195,7 +195,6 @@ const style = StyleSheet.create({
   loader: {
     zIndex: 5,
     position: 'absolute',
-    // top: 0,
     bottom: 0,
     left: 0,
     width: '100%',
@@ -206,7 +205,6 @@ const style = StyleSheet.create({
   },
 
   square: {
-    // zIndex: 5,
     position: 'absolute',
     bottom: -380,
     right: 0,

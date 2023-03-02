@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import FriendCard from '../components/FriendCard';
 
 const FriendCardsContainer = ({ friendsListFiltered, handleOpenFriendProfile, handleRemoveFriend, handleAddFriend }) => {

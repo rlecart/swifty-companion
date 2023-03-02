@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, Modal, StyleSheet, Pressable, View, Image, Text } from "react-native";
 
-import CrossIconWhite from '../../assets/icons/CrossIconWhite.png'
-// import CrossIconBlack from '../../assets/icons/CrossIconBlack.png'
+import CrossIconWhite from '../../assets/icons/CrossIconWhite.png';
 
 import RenderIf from "./RenderIf";
 
@@ -58,10 +57,7 @@ const CustomAnimatedModal = ({ theme, modalVisible, handleCloseModal, height, co
     >
       <Pressable
         style={style.modalBackground}
-        onPress={() => {
-          console.log('onPress');
-          hideModal();
-        }}
+        onPress={() => hideModal()}
       />
       <Animated.View style={{
         backgroundColor: color,
@@ -93,7 +89,7 @@ const CustomAnimatedModal = ({ theme, modalVisible, handleCloseModal, height, co
               <Pressable style={[
                 style.headerButtonCrossIcon,
                 theme === 'dark' && { backgroundColor: '#2C2C2EEE' },
-                ]} onPress={hideModal}>
+              ]} onPress={hideModal}>
                 <Image style={[
                   style.headerCrossIcon,
                   theme === 'dark' && { tintColor: '#fff' },

@@ -1,18 +1,17 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { ActionSheetIOS, ActivityIndicator, Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
+import React, { Fragment, useEffect, useState } from 'react';
+import { ActivityIndicator, Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
 
 import SettingsIcon from '../../assets/icons/settings.png';
 
 import RenderIf from '../components/RenderIf';
-import SearchBar from '../components/SearchBar';
 import ModalSetLanguage from '../containers/ModalSetLanguage';
 
 import { isAValidLogin } from '../utils/utils';
 
 import db from '../db/db';
 import api from '../api/api';
-import { StatusBar } from 'expo-status-bar';
 
 const StudentFinderScreen = ({ navigation, isLoaded }) => {
   const isFocused = useIsFocused();
@@ -38,10 +37,9 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
   const getLanguageFromDB = async () => {
     try {
       const language = await db.getLanguage();
-      console.log('language: ', language);
       setLanguage(language);
     } catch (error) {
-      console.log('error fetching language: ', error);
+      console.error('error fetching language: ', error);
     }
   };
 
@@ -64,7 +62,6 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
     setIsFetching(true);
 
     try {
-      console.log('login: ', login, isAValidLogin(login));
       if (login === '' || login === undefined || login === null)
         throw new Error('login is empty');
 
@@ -82,7 +79,7 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
       });
       handleCancel();
     } catch (error) {
-      console.log('error handleSubmit: ', error);
+      console.error('error handleSubmit: ', error);
       setSearchError(true);
     }
 
@@ -216,7 +213,6 @@ const style = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'red',
     padding: 50,
   },
   logo: {
@@ -228,7 +224,6 @@ const style = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'red',
     paddingHorizontal: 85,
   },
   studentFinder: {
@@ -272,8 +267,6 @@ const style = StyleSheet.create({
   },
 
   searchButton: {
-    // width: '100%',
-    // height: 40,
     backgroundColor: '#246B68',
     borderRadius: 10,
     paddingHorizontal: 15,
@@ -299,8 +292,6 @@ const style = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'red',
-    // paddingHorizontal: 85,
     position: 'absolute',
     bottom: 0,
     paddingBottom: 50,
@@ -310,14 +301,12 @@ const style = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // backgroundColor: 'red',
     flexDirection: 'row',
   },
   friendsList: {
     backgroundColor: '#FFA5BB',
     borderRadius: 10,
     paddingHorizontal: 15,
-    // marginHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -332,13 +321,10 @@ const style = StyleSheet.create({
   settingsContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'red',
-    // paddingHorizontal: 85,
   },
   settingsIcon: {
     width: 40,
     height: 40,
-    color: 'red',
   },
 
 });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActionSheetIOS, Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 import RenderIf from './RenderIf';
@@ -7,7 +7,7 @@ import db from '../db/db';
 
 const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend, handleAddFriend }) => {
   const theme = useColorScheme();
-  
+
   const [language, setLanguage] = useState('fr');
   db.getLanguage().then(lang => setLanguage(lang));
 
@@ -30,10 +30,8 @@ const FriendCard = ({ index, friend, handleOpenFriendProfile, handleRemoveFriend
       destructiveButtonIndex: 1,
       cancelButtonIndex: 0,
     }, (buttonIndex) => {
-      if (buttonIndex === 1) {
-        console.log('delete friend: ', friend);
+      if (buttonIndex === 1)
         handleRemoveFriend(friend);
-      }
     });
   };
 
@@ -130,9 +128,6 @@ const style = StyleSheet.create({
     minWidth: '40%',
     height: 170,
     backgroundColor: '#E7E7E8CC',
-    // backgroundColor: '#F9CBD9CC',
-    // borderColor: '#B7576F88',
-    // borderWidth: 0.5,
   },
   friendCardAddText: {
     fontSize: 80,
