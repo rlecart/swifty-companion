@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 
@@ -9,9 +9,14 @@ import EasterHi from '../../assets/easter/easterHi.png';
 import RenderIf from '../components/RenderIf';
 
 import db from '../db/db';
+import api from '../api/api';
 
 const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
-  const { student, projects, skills } = route.params;
+  const {
+    student,
+    // projects,
+    // skills
+  } = route.params;
 
   const theme = useColorScheme();
 
@@ -24,12 +29,36 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
   const [isFetching, setIsFetching] = useState(false);
 
+  const [projects, setProjects] = useState(null);
+  const [skills, setSkills] = useState(null);
+
   useEffect(() => {
     if (isLoaded) {
       getFriendsListFromDB();
       getLanguageFromDB();
+      getSkillsFromAPI()
+        .then(() => getProjectsFromAPI());
     }
   }, [isLoaded, isFocused]);
+
+  const getProjectsFromAPI = async () => {
+    try {
+      const projects = await api.getStudentProjects(student?.id);
+      console.log('projects: ', projects);
+      setProjects(projects);
+    } catch (error) {
+      console.error('error fetching projects: ', error);
+    }
+  };
+
+  const getSkillsFromAPI = async () => {
+    try {
+      const skills = await api.getStudentSkills(student?.id);
+      setSkills(skills);
+    } catch (error) {
+      console.error('error fetching skills: ', error);
+    }
+  };
 
   const getLanguageFromDB = async () => {
     try {
@@ -163,7 +192,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
                 </View>
                 <View style={style.levelPercentContainer}>
                   <Text style={style.levelPercent}>
-                    {`${skills?.level * 1000}`.slice(-3).slice(0, 2) || '0'}%
+                    {(skills && `${skills?.level * 1000}`.slice(-3).slice(0, 2)) || '0'}%
                   </Text>
                 </View>
               </View>
@@ -197,7 +226,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
               </View>
             </View>
 
-            <RenderIf isTrue={allProjects?.length > 0}>
+            <RenderIf isTrue={!projects || allProjects?.length > 0}>
               <View style={style.categoryContainer}>
 
                 <Text style={[
@@ -207,51 +236,62 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
                   {language === 'fr' ? 'Projets' : 'Projects'}
                 </Text>
 
-                <View style={style.categoryContent}>
-                  {allProjects?.map((project, index) => (
-                    <View key={index} style={style.categoryContentRow}>
-                      <Text style={[
-                        style.categoryContentRowText, {
-                          maxWidth: '75%',
-                          color: '#B6B6C1',
-                        },
-                        project.status === 'finished' && (project['validated?']
-                          ? style.categoryContentRowTextValidated : style.categoryContentRowTextFailed),
-                        project.status === 'in_progress' && style.categoryContentRowTextInProgress,
-                      ]}
-                        numberOfLines={1}
-                      >
-                        {project.project.name}
-                      </Text>
+                <RenderIf isTrue={projects}>
+                  <View style={style.categoryContent}>
+                    {allProjects?.map((project, index) => (
+                      <View key={index} style={style.categoryContentRow}>
+                        <Text style={[
+                          style.categoryContentRowText, {
+                            maxWidth: '75%',
+                            color: '#B6B6C1',
+                          },
+                          project.status === 'finished' && (project['validated?']
+                            ? style.categoryContentRowTextValidated : style.categoryContentRowTextFailed),
+                          project.status === 'in_progress' && style.categoryContentRowTextInProgress,
+                        ]}
+                          numberOfLines={1}
+                        >
+                          {project.project.name}
+                        </Text>
 
-                      <View style={[
-                        style.projectEvaluation,
-                        project.status === 'finished' && (project['validated?']
-                          ? style.projectEvaluationValidated : style.projectEvaluationFailed),
-                        project.status === 'in_progress' && style.projectEvaluationInProgress,
-                      ]}>
-                        <RenderIf isTrue={project.status !== 'in_progress'}>
-                          <Text style={[
-                            style.projectEvaluationText,
-                            theme === 'dark' && { color: 'black' },
-                            project.status === 'finished' && (project['validated?']
-                              ? style.projectEvaluationTextValidated : style.projectEvaluationTextFailed),
-                          ]}>
-                            {project.final_mark || (project.status === 'finished' ? '0' : '-')}
-                          </Text>
-                        </RenderIf>
+                        <View style={[
+                          style.projectEvaluation,
+                          project.status === 'finished' && (project['validated?']
+                            ? style.projectEvaluationValidated : style.projectEvaluationFailed),
+                          project.status === 'in_progress' && style.projectEvaluationInProgress,
+                        ]}>
+                          <RenderIf isTrue={project.status !== 'in_progress'}>
+                            <Text style={[
+                              style.projectEvaluationText,
+                              theme === 'dark' && { color: 'black' },
+                              project.status === 'finished' && (project['validated?']
+                                ? style.projectEvaluationTextValidated : style.projectEvaluationTextFailed),
+                            ]}>
+                              {project.final_mark || (project.status === 'finished' ? '0' : '-')}
+                            </Text>
+                          </RenderIf>
 
-                        <RenderIf isTrue={project.status === 'in_progress'}>
-                          <Image source={PendingClock} style={style.pendingClock} />
-                        </RenderIf>
+                          <RenderIf isTrue={project.status === 'in_progress'}>
+                            <Image source={PendingClock} style={style.pendingClock} />
+                          </RenderIf>
+                        </View>
                       </View>
-                    </View>
-                  ))}
-                </View>
+                    ))}
+                  </View>
+                </RenderIf>
+
+                <RenderIf isTrue={!projects}>
+                  <View style={[
+                    style.categoryContent,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'row' },
+                  ]}>
+                    <ActivityIndicator size="large" color="#B6B6C1" style={{ width: '100%' }} />
+                  </View>
+                </RenderIf>
               </View>
             </RenderIf>
 
-            <RenderIf isTrue={skills?.skills?.length > 0}>
+            <RenderIf isTrue={!skills || skills.skills?.length > 0}>
               <View style={style.categoryContainer}>
                 <Text style={[
                   style.categoryTitle,
@@ -260,29 +300,40 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
                   {language === 'fr' ? 'Compétences' : 'Skills'}
                 </Text>
 
-                <View style={style.categoryContent}>
-                  {skills?.skills?.map((skill, index) => (
-                    <View key={index} style={style.categoryContentRow}>
-                      <View style={style.skillContainer}>
-                        <View style={style.skillHeaderContainer}>
-                          <Text
-                            style={[style.skillName, { maxWidth: '80%' }]}
-                            numberOfLines={1}
-                          >
-                            {skill.name}
-                          </Text>
-                          <Text style={style.skillPercentage}>
-                            {(skill.level / 20 * 100).toFixed(2)}%
-                          </Text>
-                        </View>
+                <RenderIf isTrue={skills}>
+                  <View style={style.categoryContent}>
+                    {skills?.skills?.map((skill, index) => (
+                      <View key={index} style={style.categoryContentRow}>
+                        <View style={style.skillContainer}>
+                          <View style={style.skillHeaderContainer}>
+                            <Text
+                              style={[style.skillName, { maxWidth: '80%' }]}
+                              numberOfLines={1}
+                            >
+                              {skill.name}
+                            </Text>
+                            <Text style={style.skillPercentage}>
+                              {(skill.level / 20 * 100).toFixed(2)}%
+                            </Text>
+                          </View>
 
-                        <View style={style.skillProgressBarContainer}>
-                          <View style={[style.skillProgressBar, { width: `${skill.level / 20 * 100}%` }]} />
+                          <View style={style.skillProgressBarContainer}>
+                            <View style={[style.skillProgressBar, { width: `${skill.level / 20 * 100}%` }]} />
+                          </View>
                         </View>
                       </View>
-                    </View>
-                  ))}
-                </View>
+                    ))}
+                  </View>
+                </RenderIf>
+
+                <RenderIf isTrue={!projects}>
+                  <View style={[
+                    style.categoryContent,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'row' },
+                  ]}>
+                    <ActivityIndicator size="large" color="#B6B6C1" style={{ width: '100%' }} />
+                  </View>
+                </RenderIf>
               </View>
             </RenderIf>
 

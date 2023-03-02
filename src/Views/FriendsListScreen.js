@@ -66,12 +66,12 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
       if (login === '' || login === undefined || login === null)
         throw new Error('login is empty');
 
-      const { student, projects, skills } = await api.getStudentInfosByLogin(login);
+      const student = await api.getStudentByLogin(login);
 
       await navigation.navigate('StudentProfileScreen', {
         student,
-        projects,
-        skills,
+        // projects,
+        // skills,
       });
     } catch (error) {
       console.error('error handleSubmit: ', error);
