@@ -4,12 +4,10 @@ import { CLIENT_ID, CLIENT_SECRET } from '@env';
 
 const apiEndpoint = 'https://api.intra.42.fr/v2';
 
-const credentials = require('../../secrets/credentials.json');
-// console.log('process.env.CLIENT_ID: ', process.env, CLIENT_ID, CLIENT_SECRET);
-// const credentials = {
-//   client_id: CLIENT_ID,
-//   client_secret: CLIENT_SECRET,
-// };
+const credentials = {
+  client_id: CLIENT_ID,
+  client_secret: CLIENT_SECRET,
+};
 
 const askNewAccessToken = async () => {
   const options = {

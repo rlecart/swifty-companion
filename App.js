@@ -11,6 +11,7 @@ import db from './src/db/db';
 import { initLanguage } from './src/db/initDB';
 
 import { LogBox } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 LogBox.ignoreAllLogs();
 
 const Stack = createStackNavigator();
