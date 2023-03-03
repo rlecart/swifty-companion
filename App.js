@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import StudentFinderScreen from './src/Views/StudentFinderScreen';
 import FriendsListScreen from './src/Views/FriendsListScreen';
@@ -11,7 +12,6 @@ import db from './src/db/db';
 import { initLanguage } from './src/db/initDB';
 
 import { LogBox } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 LogBox.ignoreAllLogs();
 
 const Stack = createStackNavigator();
