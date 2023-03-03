@@ -66,7 +66,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
       if (login === '' || login === undefined || login === null)
         throw new Error('login is empty');
 
-      const student = await api.getStudentByLogin(login);
+      const student = await api.get('student', login);
 
       await navigation.navigate('StudentProfileScreen', {
         student,
@@ -119,7 +119,7 @@ const FriendsListScreen = ({ route, navigation, isLoaded }) => {
             try {
               let student;
 
-              try { student = await api.getStudentByLogin(login); }
+              try { student = await api.get('student', login); }
               catch { throw new Error(404); }
 
               try { await db.addFriend(student).then(getFriendsListFromDB); }

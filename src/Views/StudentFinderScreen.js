@@ -70,7 +70,7 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
         throw new Error('login is not valid');
       }
 
-      const student = await api.getStudentByLogin(login);
+      const student = await api.get('student', login);
 
       await navigation.navigate('StudentProfileScreen', {
         student,

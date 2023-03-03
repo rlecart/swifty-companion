@@ -29,21 +29,33 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
   const [isFetching, setIsFetching] = useState(false);
 
   const [projects, setProjects] = useState(null);
+  const [allProjects, setAllProjects] = useState(null);
   const [skills, setSkills] = useState(null);
 
   useEffect(() => {
     if (isLoaded) {
       getFriendsListFromDB();
       getLanguageFromDB();
-      getSkillsFromAPI()
-        .then(() => getProjectsFromAPI());
+      getSkillsFromAPI();
+      getProjectsFromAPI();
+      // .then(() => getProjectsFromAPI());
     }
   }, [isLoaded, isFocused]);
 
+  useEffect(() => {
+    // if (skills === null || projects === null)
+    //   return;
+
+    if (skills?.cursusId === undefined || skills?.cursusId === null)
+      setAllProjects(projects);
+    else
+      setAllProjects(projects?.filter(p => p?.cursus_ids?.find(e => e === skills.cursusId)));
+  }, [skills, projects]);
+
   const getProjectsFromAPI = async () => {
     try {
-      const projects = await api.getStudentProjects(student?.id);
-      console.log('projects: ', projects);
+      const projects = await api.get('projects', student?.id);
+      // console.log('projects: ', projects);
       setProjects(projects);
     } catch (error) {
       console.error('error fetching projects: ', error);
@@ -52,7 +64,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
   const getSkillsFromAPI = async () => {
     try {
-      const skills = await api.getStudentSkills(student?.id);
+      const skills = await api.get('skills', student?.id);
       setSkills(skills);
     } catch (error) {
       console.error('error fetching skills: ', error);
@@ -104,8 +116,6 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
     setIsFetching(false);
   };
-
-  const allProjects = projects?.filter(p => p?.cursus_ids?.find(e => e === skills.cursusId));
 
   return (
     <Fragment>
@@ -324,7 +334,7 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
                   </View>
                 </RenderIf>
 
-                <RenderIf isTrue={!projects}>
+                <RenderIf isTrue={!skills}>
                   <View style={[
                     style.categoryContent,
                     { justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'row' },
