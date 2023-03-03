@@ -12,11 +12,7 @@ import db from '../db/db';
 import api from '../api/api';
 
 const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
-  const {
-    student,
-    // projects,
-    // skills
-  } = route.params;
+  const { student } = route.params;
 
   const theme = useColorScheme();
 
@@ -38,14 +34,10 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
       getLanguageFromDB();
       getSkillsFromAPI();
       getProjectsFromAPI();
-      // .then(() => getProjectsFromAPI());
     }
   }, [isLoaded, isFocused]);
 
   useEffect(() => {
-    // if (skills === null || projects === null)
-    //   return;
-
     if (skills?.cursusId === undefined || skills?.cursusId === null)
       setAllProjects(projects);
     else
@@ -55,7 +47,6 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
   const getProjectsFromAPI = async () => {
     try {
       const projects = await api.get('projects', student?.id);
-      // console.log('projects: ', projects);
       setProjects(projects);
     } catch (error) {
       console.error('error fetching projects: ', error);

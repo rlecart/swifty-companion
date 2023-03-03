@@ -78,7 +78,6 @@ class Fetcher {
         || actualAccessToken?.created_at === undefined || actualAccessToken?.created_at === null
         || actualAccessToken?.expires_in === undefined || actualAccessToken?.expires_in === null
         || tokenDateLimit - now < 0) {
-        console.log('askNewAccessToken');
         const newAccessToken = await this.askNewAccessToken();
         await db.setAccessToken(newAccessToken);
         actualAccessToken = newAccessToken;
@@ -126,9 +125,7 @@ class Fetcher {
 
   async getStudentByLogin(login) {
     try {
-      console.log('getStudentByLogin: ', login);
       const accessToken = await this.getAccessToken();
-      console.log('accessToken: ', accessToken);
 
       const options = {
         method: 'GET',
@@ -316,36 +313,3 @@ class Fetcher {
 const api = new Fetcher();
 
 export default api;
-
-// const getStudentInfosByLogin = async (login) => {
-//   try {
-//     await new Promise(resolve => setTimeout(resolve, 1500));
-
-//     const studentBefore = new Date();
-//     const student = await getStudentByLogin(login, true);
-//     const studentAfter = new Date();
-//     await new Promise(resolve => setTimeout(resolve, 1500 - (studentAfter - studentBefore)));
-
-//     const projectsBefore = new Date();
-//     const projects = await getStudentProjects(student.id, true);
-//     const projectsAfter = new Date();
-//     await new Promise(resolve => setTimeout(resolve, 1500 - ((projectsAfter - projectsBefore) % 1500)));
-
-//     const skillsBefore = new Date();
-//     const skills = await getStudentSkills(student.id, true);
-//     const skillsAfter = new Date();
-//     await new Promise(resolve => setTimeout(resolve, 1500 - ((skillsAfter - skillsBefore) % 1500)));
-
-//     return ({ student, projects, skills });
-//   } catch (error) {
-//     console.error('There was a problem with the fetch operation (getStudentInfosByLogin):', error);
-//     throw error;
-//   }
-// };
-
-// export default {
-//   getStudentByLogin,
-//   getStudentProjects,
-//   getStudentSkills,
-//   getStudentInfosByLogin
-// };

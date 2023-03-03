@@ -72,11 +72,7 @@ const StudentFinderScreen = ({ navigation, isLoaded }) => {
 
       const student = await api.get('student', login);
 
-      await navigation.navigate('StudentProfileScreen', {
-        student,
-        // projects,
-        // skills,
-      });
+      await navigation.navigate('StudentProfileScreen', { student });
       handleCancel();
     } catch (error) {
       console.error('error handleSubmit: ', error);
