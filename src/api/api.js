@@ -127,7 +127,7 @@ class Fetcher {
         };
       });
     } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
+      console.error('There was a problem with the askNewToken fetch operation:', error);
     }
   };
 
@@ -163,7 +163,7 @@ class Fetcher {
         };
       });
     } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
+      console.error('There was a problem with the student fetch operation:', error);
       throw error;
     }
   };
@@ -231,7 +231,7 @@ class Fetcher {
       return (allResults);
 
     } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
+      console.error('There was a problem with the projects fetch operation:', error);
       throw error;
     }
   };
@@ -311,7 +311,7 @@ class Fetcher {
         cursusId: cursusId,
       });
     } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
+      console.error('There was a problem with the skills fetch operation:', error);
       throw error;
     }
   };
