@@ -43,11 +43,19 @@ class Fetcher {
         resolve(result);
       } catch (error) {
         console.error('error fetching: ', error);
+        if (error.message === '404') {
+          if (type === 'student')
+            reject(error);
+          else
+            resolve([]);
+          continue;
+        }
+
         if (tries > 10) {
           reject(error);
           continue;
         }
-        this.fetchList.unshift({ type, tries: tries + 1, resolve, reject });
+        this.fetchList.unshift({ type, param, tries: tries + 1, resolve, reject });
       }
     }
 
@@ -150,7 +158,7 @@ class Fetcher {
         reader.onload = () => {
           const data = JSON.parse(reader.result);
           if (data === undefined || data === null || data.length !== 1)
-            reject(new Error(`No user found with login ${login}`));
+            reject(new Error('404'));
           resolve(data?.[0]);
         };
       });
@@ -199,7 +207,7 @@ class Fetcher {
             reader.onload = () => {
               const data = JSON.parse(reader.result);
               if (data === undefined || data === null)
-                reject(new Error(`No projects array found with user_id ${studentId}`));
+                reject(new Error('404'));
               resolve(data);
             };
           });
@@ -271,7 +279,7 @@ class Fetcher {
             reader.onload = () => {
               const data = JSON.parse(reader.result);
               if (data === undefined || data === null)
-                reject(new Error(`No skills array found with user_id ${studentId}`));
+                reject(new Error('404'));
 
               if (level === null)
                 level = data?.[0]?.level;
