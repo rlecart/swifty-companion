@@ -1,1 +1,0 @@
-export $(cat .env) && npx expo start
