@@ -24,7 +24,6 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
   const [language, setLanguage] = useState('fr');
 
-  const [friendsList, setFriendsList] = useState(null);
   const [isFriend, setIsFriend] = useState(true);
 
   const [isFetching, setIsFetching] = useState(false);
@@ -74,7 +73,6 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
     try {
       const friends = await db.getFriendsList();
-      setFriendsList(friends);
       friends.some(friend => friend.login === student.login) ? setIsFriend(true) : setIsFriend(false);
     } catch (error) {
       console.error('error fetching friendsList: ', error);
