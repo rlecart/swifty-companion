@@ -4,6 +4,8 @@ import { useIsFocused } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 
 import PendingClock from '../../assets/icons/pending-clock.png';
+import PhoneIcon from '../../assets/icons/phone.png';
+import EmailIcon from '../../assets/icons/email.png';
 import EasterHi from '../../assets/easter/easterHi.png';
 
 import RenderIf from '../components/RenderIf';
@@ -210,13 +212,15 @@ const StudentProfileScreen = ({ route, navigation, isLoaded }) => {
 
               <View style={style.categoryContent}>
 
-                <View style={style.categoryContentRow}>
+                <View style={[style.categoryContentRow, { justifyContent: 'flex-start' }]}>
+                  <Image style={style.categoryContentRowIcon} source={PhoneIcon} resizeMode='contain' />
                   <Text style={style.categoryContentRowText}>
                     {student.phone}
                   </Text>
                 </View>
 
-                <View style={style.categoryContentRow}>
+                <View style={[style.categoryContentRow, { justifyContent: 'flex-start' }]}>
+                  <Image style={style.categoryContentRowIcon} source={EmailIcon} resizeMode='contain' />
                   <Text style={style.categoryContentRowText}>
                     {student.email}
                   </Text>
@@ -574,6 +578,14 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  categoryContentRowIcon: {
+    width: 20,
+    height: 17,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+    tintColor: '#9BD1B2',
   },
   categoryContentRowText: {
     color: '#85858B',
