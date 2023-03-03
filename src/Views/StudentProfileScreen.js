@@ -411,6 +411,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   studentImage: {
+    backgroundColor: '#246B68',
     width: 110,
     height: 110,
     borderRadius: '100%',
